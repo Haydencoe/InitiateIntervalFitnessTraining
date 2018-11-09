@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_timers"
+        android:icon="@drawable/ic_timer_black_24dp"
+        android:title="@string/title_timers" />
+
+    <item
+        android:id="@+id/navigation_running"
+        android:icon="@drawable/ic_directions_run_black_24dp"
+        android:title="@string/title_running" />
+
+    <item
+        android:id="@+id/navigation_journal"
+        android:icon="@drawable/ic_import_contacts_black_24dp"
+        android:title="@string/title_journal" />
+
+</menu>
