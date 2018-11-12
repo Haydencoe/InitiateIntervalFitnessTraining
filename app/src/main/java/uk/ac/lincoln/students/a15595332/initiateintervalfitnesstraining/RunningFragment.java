@@ -69,9 +69,6 @@ public class RunningFragment extends Fragment {
         }
 
 
-
-
-
     }
 
     @Override

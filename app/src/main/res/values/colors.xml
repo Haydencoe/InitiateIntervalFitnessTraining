@@ -10,4 +10,10 @@
     <color name="actionbar_background">#464646</color>
     <color name="actionbar_text">#696969</color>
 
+
+    <color name="prepare_colour">#E57E33</color>
+    <color name="work_colour">#E64D43</color>
+    <color name="rest_colour">#35495C</color>
+    <color name="finished_colour">#39C775</color>
+
 </resources>

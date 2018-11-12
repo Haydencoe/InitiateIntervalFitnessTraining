@@ -32,113 +32,114 @@
 
     <!-- Layout for content is here.  -->
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/nestedScroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".NewTimer">
+        android:fillViewport="true"
+        android:scrollbars="none">
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".NewTimer">
-
-
-
-
-        <TextView
-            android:id="@+id/restSetsText"
-            android:layout_width="wrap_content"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Rest between sets"
-            app:layout_constraintBottom_toTopOf="@+id/restSetsInput"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/setsInput" />
-
-        <TextView
-            android:id="@+id/setsText"
-            android:layout_width="wrap_content"
+            tools:context=".NewTimer">
+            <!--  <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sets"
-            app:layout_constraintBottom_toTopOf="@+id/setsInput"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cyclesInput" />
+            android:orientation="vertical"> -->
 
-        <EditText
-            android:id="@+id/workoutTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:text="Workout"
-            app:layout_constraintBottom_toTopOf="@+id/prepareText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleText" />
 
-        <TextView
-            android:id="@+id/titleText"
-            android:layout_width="33dp"
-            android:layout_height="26dp"
-            android:text="Title"
-            app:layout_constraintBottom_toTopOf="@+id/workoutTitle"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="spread_inside" />
+            <TextView
+                android:id="@+id/restSetsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rest between sets"
+                app:layout_constraintBottom_toTopOf="@+id/restSetsInput"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/setsInput" />
 
-        <TextView
-            android:id="@+id/cyclesText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cycles"
-            app:layout_constraintBottom_toTopOf="@+id/cyclesInput"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/restInput" />
+            <TextView
+                android:id="@+id/setsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sets"
+                app:layout_constraintBottom_toTopOf="@+id/setsInput"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cyclesInput" />
 
-        <TextView
-            android:id="@+id/restText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Rest"
-            app:layout_constraintBottom_toTopOf="@+id/restInput"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/workoutInput" />
+            <TextView
+                android:id="@+id/titleText"
+                android:layout_width="33dp"
+                android:layout_height="26dp"
+                android:text="Title"
+                app:layout_constraintBottom_toTopOf="@+id/workoutTitle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="spread_inside" />
 
-        <TextView
-            android:id="@+id/workoutText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Workout"
-            app:layout_constraintBottom_toTopOf="@+id/workoutInput"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/prepareInput" />
+            <EditText
+                android:id="@+id/workoutTitle"
+                android:layout_width="210dp"
+                android:layout_height="45dp"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:maxLength="15"
+                android:text="Workout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/titleText" />
 
-        <TextView
-            android:id="@+id/prepareText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Prepare"
-            app:layout_constraintBottom_toTopOf="@+id/prepareInput"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/workoutTitle" />
+            <TextView
+                android:id="@+id/cyclesText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cycles"
+                app:layout_constraintBottom_toTopOf="@+id/cyclesInput"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/restInput" />
+
+            <TextView
+                android:id="@+id/restText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rest"
+                app:layout_constraintBottom_toTopOf="@+id/restInput"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/workoutInput" />
+
+            <TextView
+                android:id="@+id/workoutText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Workout"
+                app:layout_constraintBottom_toTopOf="@+id/workoutInput"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/prepareInput" />
+
+            <TextView
+                android:id="@+id/prepareText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Prepare"
+                app:layout_constraintBottom_toTopOf="@+id/prepareInput"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/workoutTitle" />
 
         <EditText
             android:id="@+id/restSetsInput"
@@ -146,78 +147,85 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="number"
+            android:maxLength="2"
             android:text="30"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/restSetsText" />
 
-        <EditText
-            android:id="@+id/setsInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="number"
-            android:text="1"
-            app:layout_constraintBottom_toTopOf="@+id/restSetsText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/setsText" />
+            <EditText
+                android:id="@+id/setsInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:maxLength="1"
+                android:text="1"
+                app:layout_constraintBottom_toTopOf="@+id/restSetsText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/setsText" />
 
-        <EditText
-            android:id="@+id/prepareInput"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:ems="10"
-            android:inputType="number"
-            android:text="10"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/prepareText" />
+            <EditText
+                android:id="@+id/prepareInput"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:inputType="number"
+                android:maxLength="2"
+                android:text="10"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/prepareText" />
 
-        <EditText
-            android:id="@+id/workoutInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="number"
-            android:text="20"
-            app:layout_constraintBottom_toTopOf="@+id/restText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/workoutText" />
+            <EditText
+                android:id="@+id/workoutInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:maxLength="2"
+                android:text="20"
+                app:layout_constraintBottom_toTopOf="@+id/restText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/workoutText" />
 
-        <EditText
-            android:id="@+id/restInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="number"
-            android:text="10"
-            app:layout_constraintBottom_toTopOf="@+id/cyclesText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/restText" />
+            <EditText
+                android:id="@+id/restInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:maxLength="2"
+                android:text="10"
+                app:layout_constraintBottom_toTopOf="@+id/cyclesText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/restText" />
 
-        <EditText
-            android:id="@+id/cyclesInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="number"
-            android:text="8"
-            app:layout_constraintBottom_toTopOf="@+id/setsText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cyclesText" />
+            <EditText
+                android:id="@+id/cyclesInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:maxLength="2"
+                android:text="8"
+                app:layout_constraintBottom_toTopOf="@+id/setsText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cyclesText" />
+
+
     </android.support.constraint.ConstraintLayout>
 
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
 </LinearLayout>

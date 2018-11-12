@@ -183,52 +183,51 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
     // Data returned when the done button is pressed in the new timer activity.
    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1) {
-            if(resultCode == RESULT_OK) {
+       if (requestCode == 1) {
+           if (resultCode == RESULT_OK) {
 
-                //Toast toast =  Toast.makeText(this, "Code 1", Toast.LENGTH_SHORT); toast.show();
+               //Toast toast =  Toast.makeText(this, "Code 1", Toast.LENGTH_SHORT); toast.show();
 
-                String workoutTitleValue = data.getStringExtra("workoutTitleValue");
-                String prepareValue = data.getStringExtra("prepareValue");
-                String workoutTimeValue = data.getStringExtra("workoutTimeValue");
-                String restValue = data.getStringExtra("restValue");
-                String cyclesValue = data.getStringExtra("cyclesValue");
+               String workoutTitleValue = data.getStringExtra("workoutTitleValue");
+               String prepareValue = data.getStringExtra("prepareValue");
+               String workoutTimeValue = data.getStringExtra("workoutTimeValue");
+               String restValue = data.getStringExtra("restValue");
+               String cyclesValue = data.getStringExtra("cyclesValue");
 
-                // Add new timer to the list of timers
-                // timersList.add(new Timers(workoutTitleValue , prepareValue, workoutTimeValue, "20", "3"));
-
-
-                // create our sqlite helper class
-                db = new SQLiteDatabaseHandler(this);
-                // create new timer
-                Timers timer1 = new Timers(workoutTitleValue, prepareValue, workoutTimeValue, restValue, cyclesValue,0);
-
-                // add them
-                db.addTimer(timer1);
+               // Add new timer to the list of timers
+               // timersList.add(new Timers(workoutTitleValue , prepareValue, workoutTimeValue, "20", "3"));
 
 
-                List<Timers> timersList = db.allTimers();
+               // create our sqlite helper class
+               db = new SQLiteDatabaseHandler(this);
+               // create new timer
+               Timers timer1 = new Timers(workoutTitleValue, prepareValue, workoutTimeValue, restValue, cyclesValue, 0);
 
-                // Initialize the Timers adapter.
-                mAdapter = new TimersAdapter(this, R.layout.timer_row, timersList, mListener);
-
-
-                // Insert the new timer at the end of the list into the recycler view.
-                int position = timersList.size();
-                mAdapter.notifyItemInserted(position);
+               // add them
+               db.addTimer(timer1);
 
 
-                // Refresh fragment.
-                TimersFragment fragment  = new TimersFragment();
-                android.support.v4.app.FragmentTransaction fragmentTransaction =
-                        getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.frame_layout, fragment);
-                fragmentTransaction.commitAllowingStateLoss();
+               List<Timers> timersList = db.allTimers();
+
+               // Initialize the Timers adapter.
+               mAdapter = new TimersAdapter(this, R.layout.timer_row, timersList, mListener);
 
 
+               // Insert the new timer at the end of the list into the recycler view.
+               int position = timersList.size();
+               mAdapter.notifyItemInserted(position);
 
-            }// End of if resultCode.
-        }// End of if requestCode.
+
+               // Refresh fragment.
+               TimersFragment fragment = new TimersFragment();
+               android.support.v4.app.FragmentTransaction fragmentTransaction =
+                       getSupportFragmentManager().beginTransaction();
+               fragmentTransaction.replace(R.id.frame_layout, fragment);
+               fragmentTransaction.commitAllowingStateLoss();
+
+
+           }// End of if resultCode.
+       }// End of if requestCode.
 
 
        if (requestCode == 2) {
@@ -260,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
 
                    // Refresh fragment.
-                   TimersFragment fragment  = new TimersFragment();
+                   TimersFragment fragment = new TimersFragment();
                    android.support.v4.app.FragmentTransaction fragmentTransaction =
                            getSupportFragmentManager().beginTransaction();
                    fragmentTransaction.replace(R.id.frame_layout, fragment);
@@ -271,21 +270,28 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
            }
 
+
        }
 
 
-    }// End of method.
+       if (requestCode == 3) {
+           if (resultCode == RESULT_OK) {
+
+               int id = data.getIntExtra("sendId", 0);
+               //Toast toast =  Toast.makeText(this, "Code 3" +id, Toast.LENGTH_SHORT); toast.show();
+
+               Intent intent = new Intent(this, finishedActivity.class);
+               intent.putExtra("sendId", id);
+               startActivityForResult(intent, 4);
 
 
 
+           }// End of result ok.
+
+       }// End of if 3
 
 
-
-
-
-
-
-
+   }// end of activity result method.
 
 }// End of class.
 

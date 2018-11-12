@@ -19,6 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".NewTimer" />
+        <activity android:name=".PlayingActivity" />
+        <activity android:name=".finishedActivity"></activity>
     </application>
 
 </manifest>

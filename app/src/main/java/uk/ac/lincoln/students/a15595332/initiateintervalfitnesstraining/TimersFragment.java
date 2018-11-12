@@ -242,8 +242,20 @@ public class TimersFragment extends Fragment {
 
     public void playButton(final View v) {
 
-        Toast.makeText(getContext(), "Position " + p, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "Position " + p, Toast.LENGTH_SHORT).show();
+
+        int id = timersList.get(p).getId();
+
+
+        Intent i = new Intent(getContext(), PlayingActivity.class);
+        i.putExtra("id", id);
+        getActivity().startActivityForResult(i, 3);
+
+
     }
+
+
+
 
 
     public void showMenu(final View v) {
@@ -302,7 +314,7 @@ public class TimersFragment extends Fragment {
 
                         }
 
-                                })
+                                })// End of set negative button
 
                                 .setIcon(android.R.drawable.ic_dialog_alert)
 
