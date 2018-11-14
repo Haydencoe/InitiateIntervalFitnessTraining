@@ -84,6 +84,7 @@ public class PlayingActivity extends AppCompatActivity {
 
         }
 
+        // This is to allow the whole time to be displayed before the counter starts.
         prepare = prepare+1;
         workout = workout+1;
         rest = rest+1;
@@ -207,7 +208,7 @@ public class PlayingActivity extends AppCompatActivity {
 
 
         // Setting the section of the workout.
-        TextView section = (TextView) findViewById(R.id.sectionText);
+        final TextView section = (TextView) findViewById(R.id.sectionText);
         section.setText("Rest");
         View screen = findViewById(R.id.screen);
         screen.setBackgroundColor(getColor(R.color.rest_colour));
@@ -218,6 +219,7 @@ public class PlayingActivity extends AppCompatActivity {
 
             //Setting the timer part of the workout.
             TextView timeText = (TextView) findViewById(R.id.timeText);
+
 
             public void onTick(long millisUntilFinished) {
 
@@ -240,7 +242,7 @@ public class PlayingActivity extends AppCompatActivity {
                     View screen = findViewById(R.id.screen);
                     screen.setBackgroundColor(getColor(R.color.finished_colour));
                     timeText.setText("Done!");
-
+                    section.setText("Finished");
                     end();
                 }
 
@@ -274,10 +276,17 @@ public class PlayingActivity extends AppCompatActivity {
 
             public void onFinish() {
 
+                /*
+                TextView cycleText = (TextView) findViewById(R.id.cycleText);
+                counter = 1;
+                cycleText.setText(String.format(Locale.ENGLISH, "%d/%d", counter, cycles));
+                playWorkout();
+                */
+
                 Intent intent = new Intent();
                 intent.putExtra("sendId", id);
-                setResult(RESULT_OK, intent);
 
+                setResult(RESULT_OK, intent);
 
                 finish();
 

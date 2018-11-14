@@ -148,7 +148,7 @@ public class TimersFragment extends Fragment {
 
         if (timersList == null) {
 
-            Timers timer1 = new Timers("No Timers", "0", "0", "0", "0", 0);
+            Timers timer1 = new Timers("No Timers", "0", "0", "0", "0", 0, "0", "0", "0", "0", "0");
 
             // add them
             db.addTimer(timer1);

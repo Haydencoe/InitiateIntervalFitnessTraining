@@ -10,17 +10,111 @@
     >
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/workoutName"
         android:layout_width="264dp"
         android:layout_height="44dp"
-        android:text="Workout Complete!"
+        android:layout_marginTop="8dp"
         android:gravity="center"
+        android:text="Workout Name"
         android:textColor="@android:color/white"
-        android:textSize="25sp"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:text="Save Workout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="233dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:text="Workout Complete!"
+        android:textColor="@android:color/white"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="158dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Total workout time:"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/workoutName" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="157dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Calories burnt:"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/totalWorkout" />
+
+    <TextView
+        android:id="@+id/caloriesBurnt"
+        android:layout_width="158dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="00"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10"
+
+        />
+
+    <TextView
+        android:id="@+id/totalWorkout"
+        android:layout_width="158dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="00"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+    <ImageButton
+        android:id="@+id/closeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/actionbar_text"
+        android:onClick="cancelButton"
+        android:tint="@android:color/background_light"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.058" />
+        app:srcCompat="@android:drawable/ic_delete" />
 </android.support.constraint.ConstraintLayout>

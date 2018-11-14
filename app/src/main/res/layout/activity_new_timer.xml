@@ -39,11 +39,11 @@
         android:fillViewport="true"
         android:scrollbars="none">
 
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             tools:context=".NewTimer">
             <!--  <LinearLayout
             android:layout_width="match_parent"
@@ -82,7 +82,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_chainStyle="spread_inside" />
 
             <EditText
@@ -141,18 +140,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/workoutTitle" />
 
-        <EditText
-            android:id="@+id/restSetsInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="number"
-            android:maxLength="2"
-            android:text="30"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/restSetsText" />
+            <EditText
+                android:id="@+id/restSetsInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:maxLength="2"
+                android:text="30"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/restSetsText" />
 
             <EditText
                 android:id="@+id/setsInput"
@@ -223,8 +222,33 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cyclesText" />
 
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="214dp"
+                android:layout_height="21dp"
+                android:gravity="center"
+                android:text="Cool Down"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/restSetsInput" />
 
-    </android.support.constraint.ConstraintLayout>
+            <EditText
+                android:id="@+id/coolDownInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:maxLength="2"
+                android:ems="10"
+                android:inputType="number"
+                android:text="60"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.503"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView11" />
+
+
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.v4.widget.NestedScrollView>
 

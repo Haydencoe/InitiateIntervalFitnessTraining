@@ -20,6 +20,10 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
     private final TextView workout;
     private final TextView rest;
     private final TextView cycles;
+    private final TextView sets;
+    private final TextView setRest;
+    private final TextView coolDown;
+    private final TextView totalTime;
 
     private final CustomItemClickListener mListener;
 
@@ -48,7 +52,10 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
         this.workout = (TextView) itemView.findViewById(R.id.workout_text);
         this.rest = (TextView) itemView.findViewById(R.id.rest_text);
         this.cycles = (TextView) itemView.findViewById(R.id.cycles_text);
-
+        this.sets = (TextView) itemView.findViewById(R.id.sets_text);
+        this.setRest = (TextView) itemView.findViewById(R.id.setrest_text);
+        this.coolDown = (TextView) itemView.findViewById(R.id.cooldown_text);
+        this.totalTime = (TextView) itemView.findViewById(R.id.totalTime_Text);
 
         this.menuButton = (ImageButton) itemView.findViewById(R.id.menuButton);
         this.playButton = (ImageButton) itemView.findViewById(R.id.playButton);
@@ -75,8 +82,10 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
         this.workout.setText(timers.getmWorkout());
         this.rest.setText(timers.getmRest());
         this.cycles.setText(timers.getmCycles());
-
-
+        this.sets.setText(timers.getmSets());
+        this.setRest.setText(timers.getmSetRest());
+        this.coolDown.setText(timers.getmCoolDown());
+        this.totalTime.setText(timers.getmTotalTime());
 
     }
 

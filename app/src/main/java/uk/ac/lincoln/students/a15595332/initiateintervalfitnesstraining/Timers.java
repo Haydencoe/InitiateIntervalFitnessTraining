@@ -8,23 +8,38 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
         private int id;
 
 
-        // Store the title of the timer
+        // Store the title of the timer.
         private String mTitle;
 
-        // Store the prepare time of the timer
+        // Store the prepare time of the timer.
         private String mPrepare;
 
-        // Store the workout time of the timer
+        // Store the workout time of the timer.
         private String mWorkout;
 
-        // Store the rest time of the timer
+        // Store the rest time of the timer.
         private String mRest;
 
-        // Store the rest time of the timer
+        // Store the cycles amount of the timer.
         private String mCycles;
 
+        // Store the sets amount of the timer.
+        private String mSets;
+
+        // Store the set rest time of the timer.
+        private String mSetRest;
+
+        // Store the cool down time of the timer.
+        private String mCoolDown;
+
+        // Store the total time of the timer.
+        private String mTotalTime;
+
+        // Store the calories burnt during the timer.
+        private String mCaloriesBurnt;
+
         // Constructor that is used to create an instance of the Timer object
-        public Timers(String mTitle, String mPrepare, String mWorkout, String mRest, String mCycles, Integer id ) {
+        public Timers(String mTitle, String mPrepare, String mWorkout, String mRest, String mCycles, Integer id, String mSets, String mSetRest, String mCoolDown, String mTotalTime, String mCaloriesBurnt ) {
 
             //this.mImageDrawable = mImageDrawable;
             this.id = id;
@@ -34,6 +49,12 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
             this.mWorkout= mWorkout;
             this.mRest = mRest;
             this.mCycles = mCycles;
+            this.mSets = mSets;
+            this.mSetRest = mSetRest;
+            this.mCoolDown = mCoolDown;
+            this.mTotalTime= mTotalTime;
+            this.mCaloriesBurnt = mCaloriesBurnt;
+
         }
 
         public Integer getId() {
@@ -43,7 +64,6 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
         public void setId(Integer id) {
             this.id = id;
         }
-
 
 
         // Title name.
@@ -91,8 +111,48 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
             this.mCycles = mCycles;
         }
 
+        // Sets amount.
+        public String getmSets() {
+            return mSets;
+        }
 
+        public void setmSets(String mSets) {
+            this.mSets = mSets;
+        }
 
+        // Set Rest time.
+        public String getmSetRest() {
+            return mSetRest;
+        }
+
+        public void setmSetRest(String mSetRest) {
+            this.mSetRest = mSetRest;
+        }
+
+        // cool down time.
+        public String getmCoolDown() {
+            return mCoolDown;
+        }
+
+        public void setmCoolDown(String mCoolDown) {
+            this.mCoolDown = mCoolDown;
+        }
+
+        // total time.
+        public String getmTotalTime() {
+            return mTotalTime;
+        }
+
+        public void setmTotalTime(String mTotalTime) {
+            this.mTotalTime = mTotalTime;
+        }
+
+        // total time.
+        public String getmCaloriesBurnt() {
+            return mCaloriesBurnt;
+        }
+
+        public void setmCaloriesBurnt(String mCaloriesBurnt) { this.mCaloriesBurnt = mCaloriesBurnt; }
 
 
     }// End of class.

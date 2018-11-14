@@ -36,7 +36,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity implements TimersFragment.OnFragmentInteractionListener, RunningFragment.OnFragmentInteractionListener, JournalFragment.OnFragmentInteractionListener  {
@@ -60,6 +60,14 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
     private Timers timers;
 
+
+    public int prepare;
+    public int workout;
+    public int rest;
+    public int cycles;
+    public int sets;
+    public int setRest;
+    public int coolDown;
 
     @Override
     public void onFragmentInteraction(Uri uri){
@@ -193,6 +201,71 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                String workoutTimeValue = data.getStringExtra("workoutTimeValue");
                String restValue = data.getStringExtra("restValue");
                String cyclesValue = data.getStringExtra("cyclesValue");
+               String setsValue = data.getStringExtra("setsValue");
+               String setRestValue = data.getStringExtra("setRestValue");
+               String coolDownVaue = data.getStringExtra("coolDownValue");
+
+
+               try {
+                   prepare = Integer.parseInt(prepareValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   workout = Integer.parseInt(workoutTimeValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   rest = Integer.parseInt(restValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   cycles = Integer.parseInt(cyclesValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   sets = Integer.parseInt(setsValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   setRest = Integer.parseInt(setRestValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   coolDown = Integer.parseInt(coolDownVaue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               int total = prepare + ((((workout+rest)*cycles)+setRest)*sets) + coolDown;
+
+               int minutes = (total % 3600) / 60;
+               int seconds = total % 60;
+
+              String totalTimeValue = String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
+
+
+               double minDec = minutes + (seconds / 60.00);
+
+
+               double calories = minDec*15.00;
+
+
+               int roundedCalories = (int) Math.rint(calories);
+
+                String caloriesBurntValue = String.valueOf(roundedCalories);
+
 
                // Add new timer to the list of timers
                // timersList.add(new Timers(workoutTitleValue , prepareValue, workoutTimeValue, "20", "3"));
@@ -201,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                // create our sqlite helper class
                db = new SQLiteDatabaseHandler(this);
                // create new timer
-               Timers timer1 = new Timers(workoutTitleValue, prepareValue, workoutTimeValue, restValue, cyclesValue, 0);
+               Timers timer1 = new Timers(workoutTitleValue, prepareValue, workoutTimeValue, restValue, cyclesValue, 0, setsValue, setRestValue, coolDownVaue, totalTimeValue, caloriesBurntValue );
 
                // add them
                db.addTimer(timer1);
@@ -240,6 +313,76 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                String workoutTimeValue = data.getStringExtra("workoutTimeValue");
                String restValue = data.getStringExtra("restValue");
                String cyclesValue = data.getStringExtra("cyclesValue");
+               String setsValue = data.getStringExtra("setsValue");
+               String setRestValue = data.getStringExtra("setRestValue");
+               String coolDownVaue = data.getStringExtra("coolDownValue");
+
+
+               try {
+                   prepare = Integer.parseInt(prepareValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   workout = Integer.parseInt(workoutTimeValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   rest = Integer.parseInt(restValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   cycles = Integer.parseInt(cyclesValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   sets = Integer.parseInt(setsValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   setRest = Integer.parseInt(setRestValue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               try {
+                   coolDown = Integer.parseInt(coolDownVaue);
+               } catch (NumberFormatException nfe) {
+
+               }
+
+               int total = prepare + ((((workout+rest)*cycles)+setRest)*sets) + coolDown;
+
+               int minutes = (total % 3600) / 60;
+               int seconds = total % 60;
+
+               String totalTimeValue = String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
+
+               // Minutes in decimal format.
+
+               double minDec = 0;
+
+               if (minutes > 0) {
+                   minDec = minutes + (seconds / 60);
+               }
+
+               else
+               {
+                   minDec = total/60;
+               }
+
+               double calories = minDec*15;
+
+               String caloriesBurntValue = String.valueOf(calories);
 
                int id = data.getIntExtra("sendId", 0);
                int pos = data.getIntExtra("sendPos", 0);
@@ -252,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                    db = new SQLiteDatabaseHandler(this);
 
                    // set timer from new values
-                   Timers timer1 = new Timers(workoutTitleValue, prepareValue, workoutTimeValue, restValue, cyclesValue, id);
+                   Timers timer1 = new Timers(workoutTitleValue, prepareValue, workoutTimeValue, restValue, cyclesValue, id, setsValue, setRestValue, coolDownVaue, totalTimeValue, caloriesBurntValue);
 
                    // update the timer.
                    db.updateTimer(timer1);
@@ -277,8 +420,10 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
        if (requestCode == 3) {
            if (resultCode == RESULT_OK) {
 
+
+
                int id = data.getIntExtra("sendId", 0);
-               //Toast toast =  Toast.makeText(this, "Code 3" +id, Toast.LENGTH_SHORT); toast.show();
+               Toast toast =  Toast.makeText(this, "Code 3" +id, Toast.LENGTH_SHORT); toast.show();
 
                Intent intent = new Intent(this, finishedActivity.class);
                intent.putExtra("sendId", id);

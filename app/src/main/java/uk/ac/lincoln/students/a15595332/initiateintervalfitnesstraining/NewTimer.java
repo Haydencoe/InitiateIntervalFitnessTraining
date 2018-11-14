@@ -87,6 +87,9 @@ public class NewTimer extends AppCompatActivity {
             EditText cyclesEdit = (EditText)findViewById(R.id.cyclesInput);
             cyclesEdit.setText(timer.getmCycles());
 
+            EditText setsEdit = (EditText)findViewById(R.id.setsInput);
+            setsEdit.setText(timer.getmSets());
+
         }
 
 
@@ -214,6 +217,23 @@ public class NewTimer extends AppCompatActivity {
         EditText cyclesEdit = (EditText)findViewById(R.id.cyclesInput);
         String cycles = cyclesEdit.getText().toString();
         intent.putExtra("cyclesValue", cycles);
+
+        //Get set amount string value.
+        EditText setsEdit = (EditText)findViewById(R.id.setsInput);
+        String sets = setsEdit.getText().toString();
+        intent.putExtra("setsValue", sets);
+
+
+        //Get set rest amount string value.
+        EditText setRestEdit = (EditText)findViewById(R.id.restSetsInput);
+        String setRest = setRestEdit.getText().toString();
+        intent.putExtra("setRestValue", setRest);
+
+        //Get set rest amount string value.
+        EditText coolDownEdit = (EditText)findViewById(R.id.coolDownInput);
+        String coolDown = coolDownEdit.getText().toString();
+        intent.putExtra("coolDownValue", coolDown);
+
 
         //Get Id.
         intent.putExtra("sendId", sendId);
