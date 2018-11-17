@@ -4,9 +4,15 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import net.sqlcipher.database.SQLiteDatabase;
+
+import java.util.List;
 
 
 /**
@@ -28,6 +34,15 @@ public class JournalFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private JournalsAdapter mAdapter;
+    private RecyclerView mRecyclerView;
+
+    public List<Journal> journalList;
+
+
+
+    private SQLiteDatabaseHandler db;
 
     public JournalFragment() {
         // Required empty public constructor
@@ -54,17 +69,93 @@ public class JournalFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Load Libraries for SQLCipher.
+        SQLiteDatabase.loadLibs(getActivity());
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
+
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+
+        // create our sqlite helper class
+        db = new SQLiteDatabaseHandler(getActivity());
+
+
+        journalList = db.allJournal();
+
+        if (journalList != null) {
+
+            String[] itemsNames = new String[journalList.size()];
+
+            for (int i = 0; i < journalList.size(); i++) {
+
+                itemsNames[i] = journalList.get(i).toString();
+
+            }
+
+        }
+
+        if (journalList == null) {
+
+
+        }
+
+
+        // Setup our RecyclerView
+
+        View rootView = inflater.inflate(R.layout.fragment_journal, container, false);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.journal_view);
+
+
+
+
+        // Initialize the Timers adapter.
+        mAdapter = new JournalsAdapter(getActivity(), R.layout.journal_row, journalList);
+
+        // Initialize ItemAnimator, LayoutManager and ItemDecorators
+
+
+        // For performance, tell OS RecyclerView won't change size
+        mRecyclerView.setHasFixedSize(true);
+
+
+
+        // Attach the adapter to RecyclerView
+        mRecyclerView.setAdapter(mAdapter);
+
+
+
+        // Sets the view to have two columns in a grid fashion.
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(),1);
+
+
+
+
+        // Set the LayoutManager
+        mRecyclerView.setLayoutManager(layoutManager);
+
+
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_journal, container, false);
+        //return inflater.inflate(R.layout.fragment_journal, container, false);
+
+
+
+
+        return rootView;
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

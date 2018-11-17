@@ -37,25 +37,54 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
     private static final String[] COLUMNS = { KEY_ID, KEY_TITLE, KEY_PREPARE, KEY_WORKOUT, KEY_REST, KEY_CYCLES, KEY_SETS, KEY_SETREST, KEY_COOLDOWN, KEY_TOTALTIME, KEY_CALORIES_BURNT };
 
 
+    private static final String JOURNAL_TABLE = "Journal";
+
+    private static final String KEY_J_ID = "jId";
+
+    private static final String KEY_J_TITLE = "jTitle";
+    private static final String KEY_J_TOTALTIME = "jTotalTime";
+    private static final String KEY_J_CALORIES = "jCalories";
+
+    private static final String[] JCOLUMNS = { KEY_J_ID, KEY_J_TITLE, KEY_J_TOTALTIME, KEY_J_CALORIES };
+
     public SQLiteDatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+
+        // Create the timers table.
         String CREATION_TABLE = "CREATE TABLE Timers ( "
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, " + "title TEXT, "
                 + "prepare TEXT, " + "workout TEXT, " + "rest TEXT, "
                 + "cycles TEXT, " + "sets TEXT, " + "setRest TEXT, " + "coolDown TEXT, " + "totalTime TEXT, " + "caloriesBurnt TEXT  )";
 
+
+
+        // Create the journal table.
+        String CREATION_TABLE_J = "CREATE TABLE Journal ( "
+                + "jId INTEGER PRIMARY KEY AUTOINCREMENT, " + "jTitle TEXT, "
+                + "jTotalTime TEXT, " + "jCalories TEXT  )";
+
+
+        db.execSQL(CREATION_TABLE_J);
         db.execSQL(CREATION_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // you can implement here migration process
+
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+
+        db.execSQL("DROP TABLE IF EXISTS " + JOURNAL_TABLE);
+
         this.onCreate(db);
+
+
+
     }
 
     public void deleteOne(int id) {
@@ -170,4 +199,78 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         return i;
     }
 
-}
+
+    //**************************** Methods for journal *************************************//
+
+    public void deleteOneJournal(int id) {
+        // Get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase("secret");
+        db.delete(JOURNAL_TABLE, "jId = ?", new String[] { String.valueOf(id) });
+        db.close();
+    }
+
+    public Journal getJournal(int jId) {
+        SQLiteDatabase db = this.getReadableDatabase("secret");
+        Cursor cursor = db.query(JOURNAL_TABLE, // a. table
+                JCOLUMNS, // b. column names
+                " jId = ?", // c. selections
+                new String[] { String.valueOf(jId) }, // d. selections args
+                null, // e. group by
+                null, // f. having
+                null, // g. order by
+                null); // h. limit
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        Journal journal = new Journal("", "", "", 0);
+        journal.setmJTitle(cursor.getString(1));
+        journal.setmJTotalTime(cursor.getString(2));
+        journal.setmJCalories(cursor.getString(3));
+
+
+        return journal;
+    }
+
+
+    public List<Journal> allJournal() {
+
+        List<Journal> journals = new LinkedList<Journal>();
+        String query = "SELECT  * FROM " + JOURNAL_TABLE;
+        SQLiteDatabase db = this.getWritableDatabase("secret");
+        Cursor cursor = db.rawQuery(query, null);
+        Journal journal = null;
+
+        if (cursor.moveToFirst()) {
+            do {
+                journal = new Journal("", "", "", 0);
+                journal.setmJId(cursor.getInt(0));
+                journal.setmJTitle(cursor.getString(1));
+                journal.setmJTotalTime(cursor.getString(2));
+                journal.setmJCalories(cursor.getString(3));
+
+                journals.add(journal);
+            } while (cursor.moveToNext());
+        }
+
+
+        cursor.close();
+        return journals;
+    }
+
+    public void addJournal(Journal journal) {
+        SQLiteDatabase db = this.getWritableDatabase("secret");
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_J_TITLE, journal.getmJTitle());
+        values.put(KEY_J_TOTALTIME, journal.getmJTotalTime());
+        values.put(KEY_J_CALORIES, journal.getmJCalories());
+
+        // insert
+        db.insert(JOURNAL_TABLE,null, values);
+        db.close();
+    }
+
+
+
+}// End of class.

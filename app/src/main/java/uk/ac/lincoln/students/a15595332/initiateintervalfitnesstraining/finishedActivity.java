@@ -8,10 +8,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 public class finishedActivity extends AppCompatActivity {
 
     private SQLiteDatabaseHandler db;
     public int id;
+
+    public String workouttitle;
     public String totalTimeText;
     public String caloriesBurntText;
 
@@ -27,8 +33,10 @@ public class finishedActivity extends AppCompatActivity {
 
         db = new SQLiteDatabaseHandler(this);
 
-        // create loaded timer
+        // create loaded timer.
         Timers timer = db.getTimer(id);
+
+        workouttitle = timer.getmTitle();
 
         totalTimeText = timer.getmTotalTime();
 
@@ -45,7 +53,27 @@ public class finishedActivity extends AppCompatActivity {
 
     }
 
+    public void saveWorkoutButton(View v) {
 
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
+        String formattedDate = df.format(c.getTime());
+
+
+        String jtitle = workouttitle + " - " + formattedDate;
+
+        // create our sqlite helper class
+        db = new SQLiteDatabaseHandler(this);
+        // create new timer
+        Journal journal = new Journal(jtitle, totalTimeText, caloriesBurntText, 0);
+
+        // add them
+        db.addJournal(journal);
+
+        finish();
+
+
+    }// End of saveWorkoutButton method.
 
     public void cancelButton(View v) {
 
