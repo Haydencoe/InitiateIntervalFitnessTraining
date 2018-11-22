@@ -90,83 +90,24 @@ public class NewTimer extends AppCompatActivity {
             EditText setsEdit = (EditText)findViewById(R.id.setsInput);
             setsEdit.setText(timer.getmSets());
 
+            EditText setRestEdit = (EditText)findViewById(R.id.restSetsInput);
+            setRestEdit.setText(timer.getmSetRest());
+
+            EditText coolEdit = (EditText)findViewById(R.id.coolDownInput);
+            coolEdit.setText(timer.getmCoolDown());
+
         }
 
 
 
-        /*
-        Switch sw = (Switch) findViewById(R.id.googleFitSwitch);
-        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    // The toggle is enabled
 
-
-
-                } else {
-                    // The toggle is disabled
-                }
-            }
-        });
-
-*/
 
     }
 
 
     /*
 
-    int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 0533;
 
-    public void googleFitEnabled(){
-
-        //Toast.makeText(this, "Enabled ", Toast.LENGTH_SHORT).show();
-
-
-
-
-            FitnessOptions fitnessOptions = FitnessOptions.builder()
-                    .addDataType(DataType.TYPE_LOCATION_SAMPLE, FitnessOptions.ACCESS_WRITE)
-                    .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_WRITE)
-                    .build();
-
-            Scope scopeLocation = new Scope(Scopes.FITNESS_LOCATION_READ_WRITE);
-            Scope scopesActivity = new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE);
-
-
-            if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(this), fitnessOptions)) {
-                GoogleSignIn.requestPermissions(
-                        this, // your activity
-                        GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
-                        GoogleSignIn.getLastSignedInAccount(this),
-                        scopesActivity, scopeLocation);
-            } else {
-                accessGoogleFit();
-            }
-
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
-
-                Toast.makeText(this, "Accessing Google Fit ", Toast.LENGTH_SHORT).show();
-
-                accessGoogleFit();
-
-            }
-        }
-    }
-
-
-    private void accessGoogleFit() {
-
-        Toast.makeText(this, "Accessing Google Fit ", Toast.LENGTH_SHORT).show();
-
-
-    }
 
     */
 

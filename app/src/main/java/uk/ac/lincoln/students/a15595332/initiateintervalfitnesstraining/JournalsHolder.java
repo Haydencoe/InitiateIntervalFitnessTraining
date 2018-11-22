@@ -3,6 +3,7 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,8 +19,11 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     private Context context;
 
+    private final JCustomItemClickListener mListener;
 
-    public JournalsHolder(Context context, View itemView) {
+    private final ImageButton menuJButton;
+
+    public JournalsHolder(Context context, View itemView, JCustomItemClickListener listener) {
 
         super(itemView);
 
@@ -30,6 +34,13 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
         this.jTitle = (TextView) itemView.findViewById(R.id.workout_title_text);
         this.jTotalTime = (TextView) itemView.findViewById(R.id.jTotalTime);
         this.jCalories = (TextView) itemView.findViewById(R.id.jCaloriesBurnt);
+
+
+        this.menuJButton = (ImageButton) itemView.findViewById(R.id.menuJButton);
+        mListener = listener;
+        menuJButton.setOnClickListener(this);
+        // Set the "onClick" listener of the holder
+        itemView.setOnClickListener(this);
 
     }
 
@@ -44,6 +55,9 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
         this.jTotalTime.setText(journal.getmJTotalTime());
         this.jCalories.setText(journal.getmJCalories());
 
+
+
+
     }
 
     public void onClick(View v) {
@@ -53,11 +67,19 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
         if (this.journal != null) {
 
 
-            Toast.makeText(this.context, "Clicked on " , Toast.LENGTH_SHORT ).show();
+            //Toast.makeText(this.context, "Clicked on " , Toast.LENGTH_SHORT ).show();
 
         }
 
+        switch (v.getId()) {
+            case R.id.menuJButton:
+                mListener.onJMenu(v, this.getLayoutPosition());
+                break;
 
+            default:
+                break;
+
+        }
 
 
     }// End of onClick method.

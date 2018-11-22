@@ -14,12 +14,12 @@ public class JournalsAdapter extends RecyclerView.Adapter<JournalsHolder> {
     private Context context;
     private int itemResource;
 
-    //private CustomItemClickListener mListener;
+    private JCustomItemClickListener mListener;
 
 
 
 
-    public JournalsAdapter(Context context, int itemResource, List<Journal> journal) {
+    public JournalsAdapter(Context context, int itemResource, List<Journal> journal, JCustomItemClickListener listener) {
 
         // Initialise the adapter
         this.journal = journal;
@@ -27,7 +27,7 @@ public class JournalsAdapter extends RecyclerView.Adapter<JournalsHolder> {
         this.itemResource = itemResource;
 
 
-        //mListener = listener;
+        mListener = listener;
     }
 
     // Override the onCreateViewHolder method
@@ -38,7 +38,7 @@ public class JournalsAdapter extends RecyclerView.Adapter<JournalsHolder> {
         // Inflate the view and return the new ViewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(this.itemResource, parent, false);
-        return new JournalsHolder(this.context, view);
+        return new JournalsHolder(this.context, view, mListener);
     }
 
     // Override the onBindViewHolder method

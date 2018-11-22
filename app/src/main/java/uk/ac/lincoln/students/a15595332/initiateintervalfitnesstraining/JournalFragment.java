@@ -1,17 +1,23 @@
 package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -40,7 +46,7 @@ public class JournalFragment extends Fragment {
 
     public List<Journal> journalList;
 
-
+    public int p;
 
     private SQLiteDatabaseHandler db;
 
@@ -82,6 +88,7 @@ public class JournalFragment extends Fragment {
 
 
 
+
     }
 
     @Override
@@ -112,6 +119,9 @@ public class JournalFragment extends Fragment {
 
         }
 
+        // Puts the list in most recently added order.
+        Collections.reverse(journalList);
+
 
         // Setup our RecyclerView
 
@@ -119,10 +129,23 @@ public class JournalFragment extends Fragment {
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.journal_view);
 
 
+        JCustomItemClickListener listener = new JCustomItemClickListener() {
+            @Override
+            public void onJMenu(View view, int position) {
+                //Toast.makeText(getContext(), "Position " + position, Toast.LENGTH_SHORT).show();
+
+                p = position;
+
+                showJMenu(view);
+
+            }
+
+        };
 
 
-        // Initialize the Timers adapter.
-        mAdapter = new JournalsAdapter(getActivity(), R.layout.journal_row, journalList);
+
+        // Initialize the Journal adapter.
+        mAdapter = new JournalsAdapter(getActivity(), R.layout.journal_row, journalList, listener);
 
         // Initialize ItemAnimator, LayoutManager and ItemDecorators
 
@@ -157,6 +180,74 @@ public class JournalFragment extends Fragment {
         return rootView;
 
     }
+
+    public void showJMenu(final View v) {
+
+        // create our sqlite helper class
+        db = new SQLiteDatabaseHandler(getActivity());
+
+
+        PopupMenu popup = new PopupMenu(getActivity(), v);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.popup_j_menu, popup.getMenu());
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+
+                switch (item.getItemId()) {
+
+                    /*
+                    case R.id.editItem:
+
+
+                        return true;
+                      */
+                        case R.id.deleteItem:
+                        // do the delete
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Confirm Delete")
+                                    .setMessage("Are you sure?")
+                                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // continue with delete
+
+                                            int id = journalList.get(p).getmJId();
+                                            // delete one from the data base.
+                                            db.deleteOneJournal(id);
+
+                                            // delete from the displayed list.
+                                            journalList.remove(p);
+
+                                            //this line below gives you the animation and also updates the adapter.
+                                            mAdapter.notifyItemRemoved(p);
+
+
+                                        }
+                                    })
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // do nothing
+
+                                        }
+
+                                    })// End of set negative button
+
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+
+                                    .show();
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+        popup.show();
+    }// End of showMenu
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

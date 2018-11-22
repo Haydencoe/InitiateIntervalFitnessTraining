@@ -423,10 +423,19 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
 
                int id = data.getIntExtra("sendId", 0);
-               Toast toast =  Toast.makeText(this, "Code 3" +id, Toast.LENGTH_SHORT); toast.show();
+
+               int calTimeStart = data.getIntExtra("sendCalTime",0);
+               int calTimeMinStart = data.getIntExtra("sendCalTimeMin",0);
+
+
+
+               //Toast toast =  Toast.makeText(this, "Code 3" +id, Toast.LENGTH_SHORT); toast.show();
 
                Intent intent = new Intent(this, finishedActivity.class);
                intent.putExtra("sendId", id);
+               intent.putExtra("sendCalTime", calTimeStart);
+               intent.putExtra("sendCalTimeMin", calTimeMinStart);
+
                startActivityForResult(intent, 4);
 
 

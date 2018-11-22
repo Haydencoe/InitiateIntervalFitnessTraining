@@ -217,7 +217,7 @@ public class TimersFragment extends Fragment {
                 new VerticalSpaceItemDecorator(verticalSpacing);
         ShadowVerticalSpaceItemDecorator shadowItemDecorator =
                 new ShadowVerticalSpaceItemDecorator(getActivity(), R.drawable.drop_shadow);
-*/
+      */
 
         // Set the LayoutManager
         mRecyclerView.setLayoutManager(layoutManager);

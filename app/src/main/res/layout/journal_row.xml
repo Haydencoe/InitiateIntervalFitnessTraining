@@ -35,7 +35,7 @@
                 android:text="Workout title - 28/08/1989" />
 
             <ImageButton
-                android:id="@+id/jMenuButton"
+                android:id="@+id/menuJButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
