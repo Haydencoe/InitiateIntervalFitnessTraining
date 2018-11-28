@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "718956535794",
+    "firebase_url": "https://ancient-snow-223315.firebaseio.com",
+    "project_id": "ancient-snow-223315",
+    "storage_bucket": "ancient-snow-223315.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:718956535794:android:973b0896f78af5f9",
+        "android_client_info": {
+          "package_name": "uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "718956535794-6kr3arkogj10kbajbd2n1s2qhd2elour.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining",
+            "certificate_hash": "ca447dd58a11a912faa5ba739334900f471bac61"
+          }
+        },
+        {
+          "client_id": "718956535794-8ls501kr2p8k41i6ac1slijjjf7p103f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCza_DdLImsfzVKJIEaO1MFOrxRI3V5Nus"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "718956535794-8ls501kr2p8k41i6ac1slijjjf7p103f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

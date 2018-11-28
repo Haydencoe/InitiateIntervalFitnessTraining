@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 
+import com.muddzdev.styleabletoast.StyleableToast;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,6 +125,10 @@ public class TimersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+
+        MainActivity mActivity = (MainActivity) getActivity();
+
+        mActivity.mTitle.setText("Initiate Interval");
 
         // **** Layout for the timer's list *************************************************************
 
@@ -242,7 +248,7 @@ public class TimersFragment extends Fragment {
 
     public void playButton(final View v) {
 
-        //Toast.makeText(getContext(), "Position " + p, Toast.LENGTH_SHORT).show();
+
 
         int id = timersList.get(p).getId();
 

@@ -10,15 +10,32 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -50,8 +67,18 @@ public class JournalFragment extends Fragment {
 
     private SQLiteDatabaseHandler db;
 
+    public Menu menu;
+
+    private FirebaseAuth mAuth;
+
+    private FirebaseDatabase database;
+    DatabaseReference refdb;
+
     public JournalFragment() {
         // Required empty public constructor
+
+
+        setHasOptionsMenu(true);
     }
 
     /**
@@ -76,6 +103,8 @@ public class JournalFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setHasOptionsMenu(true);
+
         // Load Libraries for SQLCipher.
         SQLiteDatabase.loadLibs(getActivity());
 
@@ -87,19 +116,30 @@ public class JournalFragment extends Fragment {
 
 
 
-
-
     }
+
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
 
+
+            MainActivity mActivity = (MainActivity) getActivity();
+
+            mActivity.mTitle.setText("Journal");
+
+
+
+////***********LOAD FROM SQL DATABASE ********************************
         // create our sqlite helper class
         db = new SQLiteDatabaseHandler(getActivity());
 
 
+/*
         journalList = db.allJournal();
 
         if (journalList != null) {
@@ -118,6 +158,90 @@ public class JournalFragment extends Fragment {
 
 
         }
+*/
+
+
+////***********LOAD FROM FIREBASE DATABASE ********************************
+
+         // Initialise journalList
+        journalList = new LinkedList<>();
+
+
+
+        database = FirebaseDatabase.getInstance();
+        refdb = database.getReference();
+
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        String uid = currentUser.getUid();
+        String uname = currentUser.getDisplayName();
+
+        /*
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference();
+        */
+
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+
+        DatabaseReference userId = database.child(uid);
+
+        DatabaseReference userName = userId.child(uname);
+
+        DatabaseReference myRef = userName.child("Journal");
+
+        Log.i("FIREBASE", "Before Firebase Call");
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i("FIREBASE", "Call Completed");
+                // do my bidding i.e find all the workouts on the database.
+
+                for (DataSnapshot jDataSnapshot : dataSnapshot.getChildren()) {
+
+                    journalWorkout j = jDataSnapshot.getValue(journalWorkout.class);
+                    Log.i("FIREBASE", "Call Value: " + j);
+
+                    String title = j.getJournalTitle();
+                    Log.i("FIREBASE", "Call Title: " + title);
+
+                    String time = j.getJournalTime();
+                    Log.i("FIREBASE", "Call Time: " + time);
+
+                    String calories = j.getJournalCalories();
+                    Log.i("FIREBASE", "Call Calories: " + calories);
+
+                    String id = j.getJournalId();
+                    Log.i("FIREBASE", "Call Id: " + id);
+
+                    Journal jadd = new Journal(title, time, calories, 0);
+                    Log.i("FIREBASE", "Call Object: " + jadd);
+
+                    journalList.add(jadd);
+                    Log.i("FIREBASE", "Call List Size: " + journalList.size());
+
+                }
+
+                Log.i("FIREBASE", "WHEN DOES THIS HAPPEN? ");
+
+                // Puts the list in most recently added order.
+                Collections.reverse(journalList);
+
+                mAdapter.notifyDataSetChanged();
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+                Toast.makeText(getContext(), "Please Check your Internet connection", Toast.LENGTH_LONG).show();
+
+            }
+        });
+
+
+
 
         // Puts the list in most recently added order.
         Collections.reverse(journalList);
@@ -160,7 +284,7 @@ public class JournalFragment extends Fragment {
 
 
 
-        // Sets the view to have two columns in a grid fashion.
+        // Sets the view to have one column in a grid fashion.
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(),1);
 
 
@@ -177,9 +301,22 @@ public class JournalFragment extends Fragment {
 
 
 
+
         return rootView;
 
+
+
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+
+        inflater.inflate(R.menu.my_j_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
 
     public void showJMenu(final View v) {
 
@@ -288,3 +425,88 @@ public class JournalFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 }
+
+
+ /*
+        Journal jadd2 = new Journal("", "", "", 0);
+        Log.i("FIREBASE", "Call Object: " + jadd2);
+
+        journalList.add(jadd2);
+        Log.i("LIST CHECK", "Call List Size: " + journalList.size());
+*/
+
+        /*
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+
+        DatabaseReference userId = database.child("Kf7YpKgSqpaT8i0llG39IuHxOpD3");
+
+        DatabaseReference userName = userId.child("Hayden Coe");
+
+        DatabaseReference userJournal = userName.child("Journal");
+
+        userJournal.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //List j = new ArrayList<>();
+                for (DataSnapshot noteDataSnapshot : dataSnapshot.getChildren()) {
+                    Journal j = noteDataSnapshot.getValue(Journal.class);
+                    //journalList.add(j);
+
+
+                    //Map<String, Object> map = (Map<String, Object>) noteDataSnapshot.getValue();
+                    //String title = (String) map.get("title");
+
+
+                    Journal jadd2 = new Journal("", "100", "100", 0);
+
+                    journalList.add(j);
+
+                }
+                //mAdapter.updateList(notes);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+
+                Log.e("The read failed: " ,firebaseError.getMessage());
+
+            }
+
+
+
+        });
+*/
+
+        /*
+        ValueEventListener queryValueListener = new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                DataSnapshot journalSnapshot = dataSnapshot.child("Journal");
+
+                Iterable<DataSnapshot> journalChildren = journalSnapshot.getChildren();
+
+                for (DataSnapshot journal : journalChildren) {
+
+                    Journal j = journal.getValue(Journal.class);
+
+
+
+                    Log.d("journal:: ", j.getmJCalories() + " " + j.getmJTotalTime() + " " + j.getmJTitle());
+                    journalList.add(j);
+                }
+
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+
+                Log.e("The read failed: " ,firebaseError.getMessage());
+
+            }
+
+        };
+*/

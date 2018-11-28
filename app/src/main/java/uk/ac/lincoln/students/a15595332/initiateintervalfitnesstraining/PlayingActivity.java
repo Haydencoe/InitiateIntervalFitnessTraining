@@ -64,6 +64,8 @@ public class PlayingActivity extends AppCompatActivity {
         // Prevent orientation layout change.
         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+
+
         Calendar c = Calendar.getInstance();
         SimpleDateFormat dfTime = new SimpleDateFormat("HH", Locale.ENGLISH);
         SimpleDateFormat dfTimeMin = new SimpleDateFormat("mm", Locale.ENGLISH);

@@ -46,6 +46,12 @@ import com.google.android.gms.fitness.result.DataTypeResult;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.IgnoreExtraProperties;
+import com.muddzdev.styleabletoast.StyleableToast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -70,15 +76,22 @@ public class finishedActivity extends AppCompatActivity {
     public int calTimeMinStart;
 
 
-    private static final String TAG = "YOUR-TAG-NAME";
+    public String jtitle;
+    public String uid;
+    public String uname;
+
+    private static final String TAG = "Tag";
     private GoogleApiClient mGoogleApiClient = null;
     private Session mSession;
 
     public int caloriesBurntInt;
 
+    DatabaseReference rootRef,user,journalNode,userName, jnumber;
 
     public Calendar beginTime;
     public Calendar endTime;
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -256,6 +269,10 @@ public class finishedActivity extends AppCompatActivity {
     }// End of onCreate.
 
 
+    public void User(String dateOfBirth, String fullName, String nickname) {
+        // ...
+    }
+
 
 
 
@@ -267,7 +284,7 @@ public class finishedActivity extends AppCompatActivity {
         formattedDate = df.format(c.getTime());
 
 
-        String jtitle = workoutTitleText + " - " + formattedDate;
+        jtitle = workoutTitleText + " - " + formattedDate;
 
         // create our sqlite helper class
         db = new SQLiteDatabaseHandler(this);
@@ -276,6 +293,48 @@ public class finishedActivity extends AppCompatActivity {
 
         // add them
         db.addJournal(journal);
+
+
+        //*********FIREBASE************************
+
+        mAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        uid = currentUser.getUid();
+        uname = currentUser.getDisplayName();
+
+        //database reference pointing to root of database
+        rootRef = FirebaseDatabase.getInstance().getReference();
+
+        //database reference pointing to user node
+        user = rootRef.child(uid);
+
+        userName = user.child(uname);
+       // user.child("Journal").setValue(new journalWorkout(jtitle, totalTimeText, caloriesBurntText));
+
+        journalNode = userName.child("Journal");
+
+        String journalId =  userName.push().getKey();
+
+       // journalWorkout workout = new journalWorkout(journalId, jtitle, totalTimeText, caloriesBurntText);
+
+        jnumber = journalNode.child(journalId);
+
+        //userName.child(journalId).setValue(workout);
+
+        jnumber.child("journalId").setValue(journalId);
+        jnumber.child("title").setValue(jtitle);
+        jnumber.child("time").setValue(totalTimeText);
+        jnumber.child("calories").setValue(caloriesBurntText);
+
+
+
+
+        //push creates a unique id in database
+       // demoRef.push().setValue(jtitle);
+        //user.child(uid).setValue(user);
+
 
         finish();
 
@@ -572,11 +631,12 @@ public class finishedActivity extends AppCompatActivity {
                     insertStatus = status;
                     if (status.isSuccess()) {
                         // USER RECORD INSERTED SUCCESSFULLY.
+                        StyleableToast.makeText(finishedActivity.this, "Saved to Google Fit", Toast.LENGTH_LONG, R.style.mytoast).show();
 
-                        Log.i(finishedActivity.this.getLocalClassName(), "Successfully managed to insert running session: " + status.getStatusMessage());
+                        Log.i(finishedActivity.this.getLocalClassName(), "Successfully managed to insert workout session: " + "YESSSSS");
 
                     } else {
-                        Log.i(finishedActivity.this.getLocalClassName(), "Failed to insert running session: " + status.getStatusMessage());
+                        Log.i(finishedActivity.this.getLocalClassName(), "Failed to insert workout session: " + status.getStatusMessage());
                     }
                 }
             });
@@ -593,6 +653,9 @@ public class finishedActivity extends AppCompatActivity {
 
 
 }// End of class.
+
+
+
 
 
   /*

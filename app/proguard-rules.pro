@@ -19,3 +19,30 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Add this global rule
+-keepattributes Signature
+
+# This rule will properly ProGuard all the model classes in
+# the package com.yourcompany.models. Modify to fit the structure
+# of your app.
+-keep class com.firebase.** {*;}
+-keep class mypackage.** {*;}
+
+#-keepclassmembers class com.yourcompany.models.** { *; }
+
+-keep class com.google.firebase.provider.FirebaseInitProvider
+
+
+-keep class android.arch.lifecycle.** {*;}
+
+-keepclassmembers class uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining.** {*;}
+
+-keep public class uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining.MainActivity
+
+-keep class org.sqlite.** { *; }
+-keep class org.sqlite.database.** { *; }
+
+
+-keep class net.sqlcipher.** { *; }
+-keep class net.sqlcipher.database.* { *; }

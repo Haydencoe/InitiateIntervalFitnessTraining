@@ -19,6 +19,23 @@
 
         >
 
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profile_image"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_centerInParent="true"
+
+            app:civ_border_color="@color/colorAccent"
+            app:civ_border_width="0dp" />
+
+
+  <!--      <ImageView
+            android:id="@+id/profile_pic"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            /> -->
+
         <TextView
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"

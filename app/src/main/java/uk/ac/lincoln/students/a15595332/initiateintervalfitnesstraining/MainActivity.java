@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -23,12 +24,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
@@ -37,6 +43,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+
+
+import es.dmoral.toasty.Toasty;
 
 
 public class MainActivity extends AppCompatActivity implements TimersFragment.OnFragmentInteractionListener, RunningFragment.OnFragmentInteractionListener, JournalFragment.OnFragmentInteractionListener  {
@@ -69,6 +79,32 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
     public int setRest;
     public int coolDown;
 
+
+    private FirebaseAuth mAuth;
+
+    public TextView mTitle;
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        mAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser == null) {
+
+            startActivity(new Intent(MainActivity.this, loginUserActivity.class));
+        }
+
+        //updateUI(currentUser);
+    }
+
+
+
+    //public  MenuInflater inflater;
+
     @Override
     public void onFragmentInteraction(Uri uri){
 
@@ -88,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
             switch (item.getItemId()) {
                 case R.id.navigation_timers:
 
+
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     selectedFragment = TimersFragment.newInstance("A","B");
                     transaction.replace(R.id.frame_layout, selectedFragment);
@@ -103,6 +140,8 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                     return true;
 
                 case R.id.navigation_journal:
+
+
 
                     FragmentTransaction transaction3 = getSupportFragmentManager().beginTransaction();
                     selectedFragment = JournalFragment.newInstance("A","B");
@@ -122,6 +161,22 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+
+        if (currentUser != null) {
+            // Loading profile image
+
+            ImageView profileImage = findViewById(R.id.profile_image);
+            Uri profilePicUrl = currentUser.getPhotoUrl();
+            if (profilePicUrl != null) {
+                Glide.with(this).load(profilePicUrl)
+                        .into(profileImage);
+            }
+
+        }
         // Load Libraries for SQLCipher.
         SQLiteDatabase.loadLibs(this);
 
@@ -144,7 +199,8 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
         // Remove default title text
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         // Get access to the custom title view
-        TextView mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+
+        mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
         mTitle.setText("Initiate Interval");
 
 
@@ -264,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
                int roundedCalories = (int) Math.rint(calories);
 
-                String caloriesBurntValue = String.valueOf(roundedCalories);
+               String caloriesBurntValue = String.valueOf(roundedCalories);
 
 
                // Add new timer to the list of timers
