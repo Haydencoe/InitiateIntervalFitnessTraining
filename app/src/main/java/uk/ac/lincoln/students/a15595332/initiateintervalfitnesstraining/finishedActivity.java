@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -93,10 +94,19 @@ public class finishedActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
+
+    public boolean saveDeviceFlag;
+
+    public boolean saveCloudFlag;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finished);
+
+        saveCloudFlag = false;
+        saveDeviceFlag = false;
+
 
         Intent intent = getIntent();
         id = intent.getIntExtra("sendId",0);
@@ -266,6 +276,43 @@ public class finishedActivity extends AppCompatActivity {
 
 
 
+        final CheckBox saveDevice = (CheckBox) findViewById(R.id.saveDevice);
+
+        saveDevice.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                //is chkIos checked?
+                if (((CheckBox) v).isChecked()) {
+
+                    saveDeviceFlag = true;
+
+
+                }
+
+            }
+        });
+
+        CheckBox saveCloud = (CheckBox) findViewById(R.id.saveCloud);
+
+        saveCloud.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                //is chkIos checked?
+                if (((CheckBox) v).isChecked()) {
+
+                    saveCloudFlag = true;
+
+
+                }
+
+            }
+        });
+
+
+
+
     }// End of onCreate.
 
 
@@ -286,54 +333,57 @@ public class finishedActivity extends AppCompatActivity {
 
         jtitle = workoutTitleText + " - " + formattedDate;
 
-        // create our sqlite helper class
-        db = new SQLiteDatabaseHandler(this);
-        // create new timer
-        Journal journal = new Journal(jtitle, totalTimeText, caloriesBurntText, 0);
+        //*********SQLite************************
+       if (saveDeviceFlag) {
 
-        // add them
-        db.addJournal(journal);
+           // create our sqlite helper class
+           db = new SQLiteDatabaseHandler(this);
+           // create new timer
+           Journal journal = new Journal(jtitle, totalTimeText, caloriesBurntText, 0);
 
+           // add them
+           db.addJournal(journal);
+       }
 
         //*********FIREBASE************************
 
-        mAuth = FirebaseAuth.getInstance();
+        if (saveCloudFlag) {
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+            mAuth = FirebaseAuth.getInstance();
 
-        uid = currentUser.getUid();
-        uname = currentUser.getDisplayName();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        //database reference pointing to root of database
-        rootRef = FirebaseDatabase.getInstance().getReference();
+            uid = currentUser.getUid();
+            uname = currentUser.getDisplayName();
 
-        //database reference pointing to user node
-        user = rootRef.child(uid);
+            //database reference pointing to root of database
+            rootRef = FirebaseDatabase.getInstance().getReference();
 
-        userName = user.child(uname);
-       // user.child("Journal").setValue(new journalWorkout(jtitle, totalTimeText, caloriesBurntText));
+            //database reference pointing to user node
+            user = rootRef.child(uid);
 
-        journalNode = userName.child("Journal");
+            userName = user.child(uname);
+            // user.child("Journal").setValue(new journalWorkout(jtitle, totalTimeText, caloriesBurntText));
 
-        String journalId =  userName.push().getKey();
+            journalNode = userName.child("Journal");
 
-       // journalWorkout workout = new journalWorkout(journalId, jtitle, totalTimeText, caloriesBurntText);
+            String journalId = userName.push().getKey();
 
-        jnumber = journalNode.child(journalId);
+            // journalWorkout workout = new journalWorkout(journalId, jtitle, totalTimeText, caloriesBurntText);
 
-        //userName.child(journalId).setValue(workout);
+            jnumber = journalNode.child(journalId);
 
-        jnumber.child("journalId").setValue(journalId);
-        jnumber.child("title").setValue(jtitle);
-        jnumber.child("time").setValue(totalTimeText);
-        jnumber.child("calories").setValue(caloriesBurntText);
+            //userName.child(journalId).setValue(workout);
+
+            jnumber.child("journalId").setValue(journalId);
+            jnumber.child("title").setValue(jtitle);
+            jnumber.child("time").setValue(totalTimeText);
+            jnumber.child("calories").setValue(caloriesBurntText);
+        }
 
 
 
 
-        //push creates a unique id in database
-       // demoRef.push().setValue(jtitle);
-        //user.child(uid).setValue(user);
 
 
         finish();
@@ -654,7 +704,9 @@ public class finishedActivity extends AppCompatActivity {
 
 }// End of class.
 
-
+//push creates a unique id in database
+// demoRef.push().setValue(jtitle);
+//user.child(uid).setValue(user);
 
 
 

@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -63,6 +64,7 @@ public class JournalFragment extends Fragment {
 
     public List<Journal> journalList;
 
+
     public int p;
 
     private SQLiteDatabaseHandler db;
@@ -73,6 +75,10 @@ public class JournalFragment extends Fragment {
 
     private FirebaseDatabase database;
     DatabaseReference refdb;
+
+    public boolean refreshFlag;
+
+    public JCustomItemClickListener listener;
 
     public JournalFragment() {
         // Required empty public constructor
@@ -115,7 +121,6 @@ public class JournalFragment extends Fragment {
 
 
 
-
     }
 
 
@@ -127,16 +132,21 @@ public class JournalFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
+            refreshFlag = false;
 
             MainActivity mActivity = (MainActivity) getActivity();
 
             mActivity.mTitle.setText("Journal");
 
 
+            journalList = new LinkedList<>();
 
-////***********LOAD FROM SQL DATABASE ********************************
-        // create our sqlite helper class
-        db = new SQLiteDatabaseHandler(getActivity());
+
+
+        //db = new SQLiteDatabaseHandler(getActivity());
+
+
+        loadFromDevice();
 
 
 /*
@@ -158,94 +168,12 @@ public class JournalFragment extends Fragment {
 
 
         }
-*/
-
-
-////***********LOAD FROM FIREBASE DATABASE ********************************
-
-         // Initialise journalList
-        journalList = new LinkedList<>();
-
-
-
-        database = FirebaseDatabase.getInstance();
-        refdb = database.getReference();
-
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        String uid = currentUser.getUid();
-        String uname = currentUser.getDisplayName();
-
-        /*
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference();
-        */
-
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-
-        DatabaseReference userId = database.child(uid);
-
-        DatabaseReference userName = userId.child(uname);
-
-        DatabaseReference myRef = userName.child("Journal");
-
-        Log.i("FIREBASE", "Before Firebase Call");
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i("FIREBASE", "Call Completed");
-                // do my bidding i.e find all the workouts on the database.
-
-                for (DataSnapshot jDataSnapshot : dataSnapshot.getChildren()) {
-
-                    journalWorkout j = jDataSnapshot.getValue(journalWorkout.class);
-                    Log.i("FIREBASE", "Call Value: " + j);
-
-                    String title = j.getJournalTitle();
-                    Log.i("FIREBASE", "Call Title: " + title);
-
-                    String time = j.getJournalTime();
-                    Log.i("FIREBASE", "Call Time: " + time);
-
-                    String calories = j.getJournalCalories();
-                    Log.i("FIREBASE", "Call Calories: " + calories);
-
-                    String id = j.getJournalId();
-                    Log.i("FIREBASE", "Call Id: " + id);
-
-                    Journal jadd = new Journal(title, time, calories, 0);
-                    Log.i("FIREBASE", "Call Object: " + jadd);
-
-                    journalList.add(jadd);
-                    Log.i("FIREBASE", "Call List Size: " + journalList.size());
-
-                }
-
-                Log.i("FIREBASE", "WHEN DOES THIS HAPPEN? ");
-
-                // Puts the list in most recently added order.
-                Collections.reverse(journalList);
-
-                mAdapter.notifyDataSetChanged();
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-                Toast.makeText(getContext(), "Please Check your Internet connection", Toast.LENGTH_LONG).show();
-
-            }
-        });
-
 
 
 
         // Puts the list in most recently added order.
         Collections.reverse(journalList);
-
+*/
 
         // Setup our RecyclerView
 
@@ -253,7 +181,7 @@ public class JournalFragment extends Fragment {
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.journal_view);
 
 
-        JCustomItemClickListener listener = new JCustomItemClickListener() {
+        listener = new JCustomItemClickListener() {
             @Override
             public void onJMenu(View view, int position) {
                 //Toast.makeText(getContext(), "Position " + position, Toast.LENGTH_SHORT).show();
@@ -267,7 +195,6 @@ public class JournalFragment extends Fragment {
         };
 
 
-
         // Initialize the Journal adapter.
         mAdapter = new JournalsAdapter(getActivity(), R.layout.journal_row, journalList, listener);
 
@@ -278,28 +205,19 @@ public class JournalFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
 
-
         // Attach the adapter to RecyclerView
         mRecyclerView.setAdapter(mAdapter);
 
 
-
-        // Sets the view to have one column in a grid fashion.
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(),1);
-
-
+        // Sets the view to have one column in a linear fashion.
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
 
 
         // Set the LayoutManager
         mRecyclerView.setLayoutManager(layoutManager);
 
-
-
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_journal, container, false);
-
-
-
 
 
         return rootView;
@@ -316,6 +234,26 @@ public class JournalFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id){
+            case R.id.cloud:
+                Log.i("MENU", "Cloud option selected");
+                journalList.clear();
+               // mAdapter.notifyDataSetChanged();
+                loadFromCloud();
+                break;
+            case R.id.device:
+                Log.i("MENU", "Device option selected");
+                journalList.clear();
+                //mAdapter.notifyDataSetChanged();
+                refreshFlag = true;
+                loadFromDevice();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 
     public void showJMenu(final View v) {
@@ -384,6 +322,139 @@ public class JournalFragment extends Fragment {
         popup.show();
     }// End of showMenu
 
+
+    public void loadFromCloud (){
+
+        ////***********LOAD FROM FIREBASE DATABASE ********************************
+
+        database = FirebaseDatabase.getInstance();
+        refdb = database.getReference();
+
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        String uid = currentUser.getUid();
+        String uname = currentUser.getDisplayName();
+
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+
+        DatabaseReference userId = database.child(uid);
+
+        DatabaseReference userName = userId.child(uname);
+
+        DatabaseReference myRef = userName.child("Journal");
+
+        Log.i("FIREBASE", "Before Firebase Call");
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i("FIREBASE", "Call Completed");
+                // do my bidding i.e find all the workouts on the database.
+
+                for (DataSnapshot jDataSnapshot : dataSnapshot.getChildren()) {
+
+                    journalWorkout j = jDataSnapshot.getValue(journalWorkout.class);
+                    Log.i("FIREBASE", "Call Value: " + j);
+
+                    String title = j.getJournalTitle();
+                    Log.i("FIREBASE", "Call Title: " + title);
+
+                    String time = j.getJournalTime();
+                    Log.i("FIREBASE", "Call Time: " + time);
+
+                    String calories = j.getJournalCalories();
+                    Log.i("FIREBASE", "Call Calories: " + calories);
+
+                    String id = j.getJournalId();
+                    Log.i("FIREBASE", "Call Id: " + id);
+
+                    Journal jadd = new Journal(title, time, calories, 0);
+                    Log.i("FIREBASE", "Call Object: " + jadd);
+
+                    journalList.add(jadd);
+                    Log.i("FIREBASE", "Call List Size: " + journalList.size());
+
+                }
+
+                Log.i("FIREBASE", "WHEN DOES THIS HAPPEN? ");
+
+                // Puts the list in most recently added order.
+                Collections.reverse(journalList);
+
+
+
+
+                mAdapter.notifyDataSetChanged();
+
+                //refreshFragment();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+                Toast.makeText(getContext(), "Please Check your Internet connection", Toast.LENGTH_LONG).show();
+
+            }
+        });
+
+
+    }
+
+    public void loadFromDevice (){
+
+
+
+        ////***********LOAD FROM SQL DATABASE ********************************
+        // create our sqlite helper class
+        db = new SQLiteDatabaseHandler(getActivity());
+
+        //journalList = new LinkedList<>();
+
+        journalList = db.allJournal();
+
+        if (journalList != null) {
+
+            String[] itemsNames = new String[journalList.size()];
+
+            for (int i = 0; i < journalList.size(); i++) {
+
+                itemsNames[i] = journalList.get(i).toString();
+            }
+
+        }
+
+        if (journalList == null) {
+
+
+        }
+
+        Log.i("REFRESH", "List: "+journalList.size());
+
+
+        // Puts the list in most recently added order.
+        Collections.reverse(journalList);
+
+        if (refreshFlag) {
+
+            Log.i("REFRESH", "True");
+
+
+           mAdapter = new JournalsAdapter(getActivity(), R.layout.journal_row, journalList, listener);
+           mRecyclerView.setAdapter(mAdapter);
+
+           mAdapter.notifyDataSetChanged();
+
+
+
+
+        }
+
+    }
+
+    //public void refreshFragment (){
+
+   // }
 
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -510,3 +581,8 @@ public class JournalFragment extends Fragment {
 
         };
 */
+
+         /*
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference();
+        */

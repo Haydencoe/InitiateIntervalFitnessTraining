@@ -8,6 +8,7 @@
         android:orderInCategory="100"
         android:icon="@drawable/ic_menu_black_24dp"
         android:title="Load from Cloud"/>
+
     <item
         android:id="@+id/device"
         android:title="Load from Device">
