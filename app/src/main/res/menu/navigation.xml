@@ -7,9 +7,9 @@
         android:title="@string/title_timers" />
 
     <item
-        android:id="@+id/navigation_running"
-        android:icon="@drawable/ic_directions_run_black_24dp"
-        android:title="@string/title_running" />
+        android:id="@+id/navigation_user"
+        android:icon="@drawable/ic_person_black_24dp"
+        android:title="@string/title_user" />
 
     <item
         android:id="@+id/navigation_journal"

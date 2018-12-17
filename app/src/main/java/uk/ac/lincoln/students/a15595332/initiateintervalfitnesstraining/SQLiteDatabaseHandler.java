@@ -44,8 +44,19 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_J_TITLE = "jTitle";
     private static final String KEY_J_TOTALTIME = "jTotalTime";
     private static final String KEY_J_CALORIES = "jCalories";
+    private static final String KEY_J_PICTURE = "jPicture";
 
-    private static final String[] JCOLUMNS = { KEY_J_ID, KEY_J_TITLE, KEY_J_TOTALTIME, KEY_J_CALORIES };
+    private static final String[] JCOLUMNS = { KEY_J_ID, KEY_J_TITLE, KEY_J_TOTALTIME, KEY_J_CALORIES, KEY_J_PICTURE };
+
+
+    private static final String USER_TABLE = "User";
+
+    private static final String KEY_U_ID = "uId";
+
+    private static final String KEY_U_WEIGHT = "uWeight";
+    private static final String KEY_U_HEIGHT = "uHeight";
+
+    private static final String[] UCOLUMNS = { KEY_U_ID, KEY_U_HEIGHT, KEY_U_WEIGHT };
 
     public SQLiteDatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -67,9 +78,16 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         // Create the journal table.
         String CREATION_TABLE_J = "CREATE TABLE Journal ( "
                 + "jId INTEGER PRIMARY KEY AUTOINCREMENT, " + "jTitle TEXT, "
-                + "jTotalTime TEXT, " + "jCalories TEXT  )";
+                + "jTotalTime TEXT, " + "jCalories TEXT, " + "jPicture TEXT )";
 
 
+        // Create the user table.
+        String CREATION_TABLE_U = "CREATE TABLE User ( "
+                + "uId INTEGER, " + "uWeight TEXT, "
+                + "uHeight TEXT )";
+
+
+        db.execSQL(CREATION_TABLE_U);
         db.execSQL(CREATION_TABLE_J);
         db.execSQL(CREATION_TABLE);
     }
@@ -80,6 +98,8 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
 
         db.execSQL("DROP TABLE IF EXISTS " + JOURNAL_TABLE);
+
+        db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
 
         this.onCreate(db);
 
@@ -120,6 +140,7 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         timers.setmTotalTime(cursor.getString(9));
         timers.setmCaloriesBurnt(cursor.getString(10));
 
+        cursor.close();
         return timers;
     }
 
@@ -194,6 +215,7 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
                 "id = ?", // selections
                 new String[] { String.valueOf(timers.getId()) });
 
+
         db.close();
 
         return i;
@@ -223,12 +245,13 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         if (cursor != null)
             cursor.moveToFirst();
 
-        Journal journal = new Journal("", "", "", 0);
+        Journal journal = new Journal("", "", "", 0, "");
         journal.setmJTitle(cursor.getString(1));
         journal.setmJTotalTime(cursor.getString(2));
         journal.setmJCalories(cursor.getString(3));
+        journal.setmPictureURL(cursor.getString(4));
 
-
+        cursor.close();
         return journal;
     }
 
@@ -243,11 +266,12 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             do {
-                journal = new Journal("", "", "", 0);
+                journal = new Journal("", "", "", 0, "");
                 journal.setmJId(cursor.getInt(0));
                 journal.setmJTitle(cursor.getString(1));
                 journal.setmJTotalTime(cursor.getString(2));
                 journal.setmJCalories(cursor.getString(3));
+                journal.setmPictureURL(cursor.getString(4));
 
                 journals.add(journal);
             } while (cursor.moveToNext());
@@ -265,12 +289,89 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_J_TITLE, journal.getmJTitle());
         values.put(KEY_J_TOTALTIME, journal.getmJTotalTime());
         values.put(KEY_J_CALORIES, journal.getmJCalories());
+        values.put(KEY_J_PICTURE, journal.getmPictureURL());
 
         // insert
         db.insert(JOURNAL_TABLE,null, values);
         db.close();
     }
 
+
+    //**************************** Methods for user *************************************//
+
+    public void addUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase("secret");
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_U_ID, user.getmUId());
+        values.put(KEY_U_HEIGHT, user.getmUHeight());
+        values.put(KEY_U_WEIGHT, user.getmUWeight());
+
+        // insert
+        db.insert(USER_TABLE,null, values);
+        db.close();
+    }
+
+    public int updateUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase("secret");
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_U_ID, user.getmUId());
+        values.put(KEY_U_HEIGHT, user.getmUHeight());
+        values.put(KEY_U_WEIGHT, user.getmUWeight());
+
+        int i = db.update(USER_TABLE, // table
+                values, // column/value
+                "UId = ?", // selections
+                new String[] { String.valueOf(user.getmUId()) });
+
+        db.close();
+
+        return i;
+    }
+
+    public boolean CheckIsDataAlreadyInDBorNot(String TableName, String dbfield, String fieldValue) {
+        SQLiteDatabase db = this.getWritableDatabase("secret");
+
+            String Query = "Select * from " + TableName + " where " + dbfield + " = " + fieldValue;
+
+            Cursor cursor = db.rawQuery(Query, null);
+
+
+            if (cursor.getCount() <= 0) {
+                cursor.close();
+                return false;
+            }
+
+
+            cursor.close();
+            db.close();
+            return true;
+
+        }
+
+    public User getUser(int UId) {
+        SQLiteDatabase db = this.getReadableDatabase("secret");
+        Cursor cursor = db.query(USER_TABLE, // a. table
+                UCOLUMNS, // b. column names
+                " UId = ?", // c. selections
+                new String[] { String.valueOf(UId) }, // d. selections args
+                null, // e. group by
+                null, // f. having
+                null, // g. order by
+                null); // h. limit
+
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        User user = new User( 0, "", "");
+        user.setmUId(cursor.getInt(0));
+        user.setmUHeight(cursor.getString(1));
+        user.setmUWeight(cursor.getString(2));
+
+        cursor.close();
+        return user;
+    }
 
 
 }// End of class.

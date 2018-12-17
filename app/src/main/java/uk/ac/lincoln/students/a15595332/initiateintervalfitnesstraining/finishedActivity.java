@@ -3,20 +3,32 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.CalendarContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -54,12 +66,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.muddzdev.styleabletoast.StyleableToast;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.Manifest.permission.WRITE_CALENDAR;
 
@@ -99,13 +121,20 @@ public class finishedActivity extends AppCompatActivity {
 
     public boolean saveCloudFlag;
 
+
+    public Bitmap resizedBitmap;
+    public Bitmap rawTakenImage;
+
+    public String imageEncoded;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finished);
 
         saveCloudFlag = false;
-        saveDeviceFlag = false;
+        saveDeviceFlag = true;
 
 
         Intent intent = getIntent();
@@ -254,7 +283,7 @@ public class finishedActivity extends AppCompatActivity {
         });
 
 
-        // Switch for saving to calendar.   *********************************************
+        // Switch for saving to Google Fit.   *********************************************
         Switch swgf = (Switch) findViewById(R.id.gfSwitch);
         swgf.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -311,6 +340,19 @@ public class finishedActivity extends AppCompatActivity {
         });
 
 
+        // Camera floating action button stuff.
+        FloatingActionButton fab = findViewById(R.id.fabCamera);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Snackbar.make(view, "Here's a Snackbar", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+                askForCameraPermission();
+
+            }
+        });
+
+
 
 
     }// End of onCreate.
@@ -325,10 +367,20 @@ public class finishedActivity extends AppCompatActivity {
 
     public void saveWorkoutButton(View v) {
 
+
+        ProgressDialog progress = new ProgressDialog(this);
+        progress.setTitle("Saving");
+        progress.setMessage("Please wait until saving is complete...");
+        progress.show();
+
+
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
 
         formattedDate = df.format(c.getTime());
+
+        // Format the Bitmap for saving.
+        //encodeBitmapAndSaveToFirebase(resizedBitmap);
 
 
         jtitle = workoutTitleText + " - " + formattedDate;
@@ -339,58 +391,111 @@ public class finishedActivity extends AppCompatActivity {
            // create our sqlite helper class
            db = new SQLiteDatabaseHandler(this);
            // create new timer
-           Journal journal = new Journal(jtitle, totalTimeText, caloriesBurntText, 0);
+           Journal journal = new Journal(jtitle, totalTimeText, caloriesBurntText,  0, imageEncoded);
 
            // add them
            db.addJournal(journal);
+
+
+
+           progress.dismiss();
+
+           finish();
+
+
        }
 
         //*********FIREBASE************************
 
+
+
         if (saveCloudFlag) {
 
-            mAuth = FirebaseAuth.getInstance();
+            ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-            FirebaseUser currentUser = mAuth.getCurrentUser();
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            boolean isConnected = activeNetwork != null &&
+                    activeNetwork.isConnectedOrConnecting();
 
-            uid = currentUser.getUid();
-            uname = currentUser.getDisplayName();
+            Log.d(DEBUG_TAG, "Network Info: " + isConnected);
 
-            //database reference pointing to root of database
-            rootRef = FirebaseDatabase.getInstance().getReference();
-
-            //database reference pointing to user node
-            user = rootRef.child(uid);
-
-            userName = user.child(uname);
-            // user.child("Journal").setValue(new journalWorkout(jtitle, totalTimeText, caloriesBurntText));
-
-            journalNode = userName.child("Journal");
-
-            String journalId = userName.push().getKey();
-
-            // journalWorkout workout = new journalWorkout(journalId, jtitle, totalTimeText, caloriesBurntText);
-
-            jnumber = journalNode.child(journalId);
-
-            //userName.child(journalId).setValue(workout);
-
-            jnumber.child("journalId").setValue(journalId);
-            jnumber.child("title").setValue(jtitle);
-            jnumber.child("time").setValue(totalTimeText);
-            jnumber.child("calories").setValue(caloriesBurntText);
-        }
+            if (isConnected) {
 
 
+                mAuth = FirebaseAuth.getInstance();
+
+                FirebaseUser currentUser = mAuth.getCurrentUser();
+
+                uid = currentUser.getUid();
+                uname = currentUser.getDisplayName();
+
+                //database reference pointing to root of database
+                rootRef = FirebaseDatabase.getInstance().getReference();
+
+                //database reference pointing to user node
+                user = rootRef.child(uid);
+
+                userName = user.child(uname);
+                // user.child("Journal").setValue(new journalWorkout(jtitle, totalTimeText, caloriesBurntText));
+
+                journalNode = userName.child("Journal");
+
+                String journalId = userName.push().getKey();
+
+                // journalWorkout workout = new journalWorkout(journalId, jtitle, totalTimeText, caloriesBurntText);
+
+                jnumber = journalNode.child(journalId);
+
+                //userName.child(journalId).setValue(workout);
+
+                jnumber.child("journalId").setValue(journalId);
+                jnumber.child("title").setValue(jtitle);
+                jnumber.child("time").setValue(totalTimeText);
+                jnumber.child("calories").setValue(caloriesBurntText);
+
+                if (imageEncoded != null) {
+
+                    jnumber.child("pictureURL").setValue(imageEncoded);
+                }
+
+                progress.dismiss();
+
+
+                finish();
+
+            } else {
+
+                CheckBox saveCloud = (CheckBox) findViewById(R.id.saveCloud);
+                saveCloud.setChecked(false);
+                saveCloudFlag = false;
+
+                CheckBox saveDevice = (CheckBox) findViewById(R.id.saveDevice);
+                saveDevice.setChecked(true);
+                saveDeviceFlag = true;
+
+                StyleableToast.makeText(finishedActivity.this, "No network available, please check your connection.", Toast.LENGTH_LONG, R.style.warningtoast).show();
+
+            }
+
+        }// End of if for saveto
 
 
 
 
-        finish();
 
 
+
+
+        // cloud
     }// End of saveWorkoutButton method.
 
+
+    public void encodeBitmapAndSaveToFirebase(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+    }
 
 
 
@@ -424,6 +529,8 @@ public class finishedActivity extends AppCompatActivity {
     }
 
 
+
+
     private void askForPermission() {
 
         // Here, thisActivity is the current activity
@@ -445,27 +552,64 @@ public class finishedActivity extends AppCompatActivity {
 
 
             } else {
-                // No explanation needed; request the permission
+                // Request the permission
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_CALENDAR},
-                        1);
+                        new String[]{Manifest.permission.WRITE_CALENDAR},1);
 
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
+
             }
 
         } else {
             // Permission has already been granted
            // Toast.makeText(this, "" + "WRITE_CALENDAR" + " is already granted.", Toast.LENGTH_SHORT).show();
 
-            Toast.makeText(this, "Saving to calendar" , Toast.LENGTH_SHORT).show();
-
             saveToCalendar();
 
         }
 
     }
+
+
+    private void askForCameraPermission() {
+
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+
+                //This is called if user has denied the permission before
+                //In this case I am just asking the permission again
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 2);
+
+
+            } else {
+                // Request the permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CAMERA},
+                        2);
+
+
+            }
+
+        } else {
+            // Permission has already been granted
+            // Toast.makeText(this, "" + "WRITE_CALENDAR" + " is already granted.", Toast.LENGTH_SHORT).show();
+
+
+            takePicture();
+
+        }
+
+    }
+
+
 
 
     @Override
@@ -476,10 +620,28 @@ public class finishedActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
 
-                    Toast.makeText(this, "Saving to calendar" , Toast.LENGTH_SHORT).show();
+
 
 
                     saveToCalendar();
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+
+                }
+                return;
+            }
+
+            case 2: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
+
+
+                    takePicture();
+
 
                 } else {
                     // permission denied, boo! Disable the
@@ -521,6 +683,67 @@ public class finishedActivity extends AppCompatActivity {
 
     }
 
+    final static int TAKE_PICTURE = 1;
+
+    public final String APP_TAG = "Initiate Interval";
+
+    public String photoFileName = "photo.png";
+
+    File photoFile;
+
+
+    public void takePicture() {
+
+
+
+        //Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        //startActivityForResult(cameraIntent, TAKE_PICTURE);
+
+        // create Intent to take a picture and return control to the calling application
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        // Create a File reference to access to future access
+        photoFile = getPhotoFileUri(photoFileName);
+
+        // wrap File object into a content provider
+        // required for API >= 24
+        // See https://guides.codepath.com/android/Sharing-Content-with-Intents#sharing-files-with-api-24-or-higher
+        Uri fileProvider = FileProvider.getUriForFile(finishedActivity.this, "uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining.provider", photoFile);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
+
+        // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
+        // So as long as the result is not null, it's safe to use the intent.
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            // Start the image capture intent to take photo
+            startActivityForResult(intent, TAKE_PICTURE);
+        }
+
+
+    }
+
+
+    // Returns the File for a photo stored on disk given the fileName
+    public File getPhotoFileUri(String fileName) {
+        // Get safe storage directory for photos
+        // `getExternalFilesDir` on Context to access package-specific directories.
+        // This way there's no need to request external read/write runtime permissions.
+        File mediaStorageDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
+            Log.d(APP_TAG, "failed to create directory");
+        }
+
+        // Return the file target for the photo based on filename
+        File file = new File(mediaStorageDir.getPath() + File.separator + fileName);
+
+        return file;
+    }
+
+
+
+
+
 
     int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 0533;
 
@@ -532,6 +755,7 @@ public class finishedActivity extends AppCompatActivity {
         FitnessOptions fitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_LOCATION_SAMPLE, FitnessOptions.ACCESS_WRITE)
                 .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_WRITE)
+
                 .build();
 
         Scope scopeLocation = new Scope(Scopes.FITNESS_LOCATION_READ_WRITE);
@@ -553,7 +777,13 @@ public class finishedActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        CircleImageView thumbnailPhoto = (CircleImageView) findViewById(R.id.thumbnailPhoto);
+
+
         if (resultCode == Activity.RESULT_OK) {
+
+
             if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
 
                 Toast.makeText(this, "Accessing Google Fit ", Toast.LENGTH_SHORT).show();
@@ -561,8 +791,68 @@ public class finishedActivity extends AppCompatActivity {
                 accessGoogleFit();
 
             }
-        }
-    }
+
+            if (requestCode == TAKE_PICTURE) {
+
+                // by this point we have the camera photo on disk
+                Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+
+                // Load the taken image into a preview
+                thumbnailPhoto.setImageBitmap(takenImage);
+
+
+                // RESIZE BITMAP for storage.
+                File takenPhotoUri = getPhotoFileUri(photoFileName);
+                // Camera photo is now on disk
+                rawTakenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
+
+
+
+                // The following uses BitmapScaler from this GitHub repository: https://gist.github.com/nesquena/3885707fd3773c09f1bb
+                resizedBitmap = BitmapScaler.scaleToFitWidth(rawTakenImage, 500);
+
+                // Configure byte output stream
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+                // Compress the image further
+                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 50, bytes);
+
+                // Prepare for storage.
+                imageEncoded = Base64.encodeToString(bytes.toByteArray(), Base64.DEFAULT);
+
+                // Create a new file for the resized bitmap (`getPhotoFileUri` defined above)
+                File resizedFile = getPhotoFileUri(photoFileName + "_resized");
+
+                try {
+
+                    resizedFile.createNewFile();
+                    FileOutputStream fos = new FileOutputStream(resizedFile);
+                    // Write the bytes of the bitmap to file
+                    fos.write(bytes.toByteArray());
+                    fos.close();
+
+
+                } catch (IOException ex) {
+
+
+                    ex.printStackTrace();
+
+                }
+
+            }
+
+
+            else { // Result was a failure
+                Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+            }
+
+
+
+
+
+
+        } // End of result okay
+    }// End of method
 
 
 
@@ -615,8 +905,6 @@ public class finishedActivity extends AppCompatActivity {
 
 
 
-
-
     private void addUserDataAndroidHealth() {
 
 
@@ -624,8 +912,6 @@ public class finishedActivity extends AppCompatActivity {
         long startTimeLong = beginTime.getTimeInMillis();
 
         long endTimeLong = endTime.getTimeInMillis();
-
-
 
 
         mSession = new Session.Builder()
@@ -648,6 +934,7 @@ public class finishedActivity extends AppCompatActivity {
                 .setTimeInterval((long) startTimeLong, (long) endTimeLong, TimeUnit.MILLISECONDS);
         caloriesDataPoint.getValue(Field.FIELD_CALORIES).setFloat((float) caloriesBurntInt);
         caloriesDataSet.add(caloriesDataPoint);
+
         insertRequest = new SessionInsertRequest.Builder()
                 .setSession(mSession)
 
@@ -702,7 +989,58 @@ public class finishedActivity extends AppCompatActivity {
 
 
 
+
+
+
+    private static final String DEBUG_TAG = "NetworkStatusExample";
+
+
+
+    public boolean isOnline() {
+
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+
+        boolean isWifiConn = false;
+        boolean isMobileConn = false;
+
+        for (Network network : connMgr.getAllNetworks()) {
+             networkInfo = connMgr.getNetworkInfo(network);
+            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                isWifiConn |= networkInfo.isConnected();
+            }
+            if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+                isMobileConn |= networkInfo.isConnected();
+            }
+        }
+
+
+        Log.d(DEBUG_TAG, "Wifi connected: " + isWifiConn);
+        Log.d(DEBUG_TAG, "Mobile connected: " + isMobileConn);
+
+
+        Log.d(DEBUG_TAG, "networkInfo: " + networkInfo);
+
+        return (networkInfo != null && networkInfo.isConnected());
+
+
+    }
+
+
+
+
 }// End of class.
+
+
+ /*
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), TAKE_PICTURE);
+*/
+
 
 //push creates a unique id in database
 // demoRef.push().setValue(jtitle);

@@ -15,7 +15,11 @@ public class Journal {
     // Store the id of the journal entry.
     private Integer mJId;
 
-    public Journal(String mJTitle, String  mJTotalTime, String mJCalories, Integer mJId) {
+
+    private String mPictureURL;
+
+
+    public Journal(String mJTitle, String  mJTotalTime, String mJCalories, Integer mJId, String mPictureURL) {
 
 
         this.mJTitle = mJTitle;
@@ -23,6 +27,7 @@ public class Journal {
         this.mJCalories = mJCalories;
         this.mJId = mJId;
 
+        this.mPictureURL = mPictureURL;
     }
 
     public String getmJTitle() {
@@ -58,6 +63,16 @@ public class Journal {
 
     public void setmJId(Integer mJId) { this.mJId = mJId; }
 
+
+
+
+
+
+    public String getmPictureURL() {
+        return mPictureURL;
+    }
+
+    public void setmPictureURL(String mPictureURL) { this.mPictureURL = mPictureURL; }
 
 
 }// End of class.

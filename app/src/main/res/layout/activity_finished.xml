@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryLightDark"
+    android:background="@color/back_colour"
     tools:context=".finishedActivity"
 
     >
@@ -15,7 +15,7 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:scrollbars="none"
-        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteX="112dp"
         tools:layout_editor_absoluteY="0dp">
 
         <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,6 +23,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+
+            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/thumbnailPhoto"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                app:civ_border_color="#FF000000"
+                app:civ_border_width="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/workoutName"
@@ -43,11 +55,11 @@
                 style="@android:style/TextAppearance.Holo.Large"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:onClick="saveWorkoutButton"
                 android:text="Save"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
@@ -55,7 +67,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="43dp"
                 android:gravity="center"
-                android:text="Workout Complete!"
+                android:text="Finished!"
                 android:textColor="@android:color/white"
                 android:textSize="25sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -118,7 +130,7 @@
                 android:id="@+id/closeButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/actionbar_text"
+                android:backgroundTint="@android:color/transparent"
                 android:onClick="cancelButton"
                 android:tint="@android:color/background_light"
                 app:layout_constraintEnd_toStartOf="@+id/textView"
@@ -143,16 +155,16 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/textView10"
-                app:layout_constraintHorizontal_bias="0.761"
+                app:layout_constraintHorizontal_bias="0.699"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/imageView3"
-                app:layout_constraintVertical_bias="0.154"
+                app:layout_constraintVertical_bias="0.095"
                 app:srcCompat="@drawable/ic_whatshot_black_24dp" />
 
             <Switch
                 android:id="@+id/calSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="192dp"
+                android:layout_height="28dp"
                 android:text="Save to Calendar"
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toTopOf="@+id/gfSwitch"
@@ -163,40 +175,74 @@
 
             <Switch
                 android:id="@+id/gfSwitch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="191dp"
+                android:layout_height="23dp"
+                android:layout_marginTop="12dp"
                 android:text="Save to Google Fit"
                 android:textColor="@android:color/white"
-                app:layout_constraintBottom_toTopOf="@+id/saveDevice"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintHorizontal_bias="0.502"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/calSwitch" />
 
             <CheckBox
                 android:id="@+id/saveDevice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="125dp"
+                android:layout_height="41dp"
                 android:layout_marginTop="60dp"
+                android:checked="true"
                 android:text="Save to Device"
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toTopOf="@+id/saveCloud"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.502"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gfSwitch" />
 
             <CheckBox
                 android:id="@+id/saveCloud"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="125dp"
+                android:layout_height="33dp"
                 android:text="Save to Cloud"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toTopOf="@+id/fabCamera"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.502"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/saveDevice" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fabCamera"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:clickable="true"
+
+                android:padding="16dp"
+
+                android:scaleType="fitXY"
+
+                android:src="@drawable/ic_photo_camera_black_24dp"
+                app:fabSize="normal"
+                app:layout_constraintBottom_toTopOf="@+id/textView8"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/saveCloud"
+                app:layout_goneMarginTop="30dp" />
+
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="143dp"
+                android:layout_height="37dp"
+                android:gravity="center"
+                android:text="Add a photo to your workout"
                 android:textColor="@android:color/white"
                 app:layout_constraintBottom_toTopOf="@+id/saveButton"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintHorizontal_bias="0.502"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/saveDevice"
-                app:layout_constraintVertical_bias="0.073" />
+                app:layout_constraintTop_toBottomOf="@+id/fabCamera" />
 
         </android.support.constraint.ConstraintLayout>
 

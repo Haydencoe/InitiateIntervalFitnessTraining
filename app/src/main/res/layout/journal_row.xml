@@ -10,7 +10,7 @@
     <android.support.v7.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="fill_parent"
-        android:layout_height="146dp"
+        android:layout_height="199dp"
         android:layout_gravity="top"
         android:layout_margin="10dp"
         android:background="@android:color/white"
@@ -21,15 +21,25 @@
             android:layout_width="match_parent"
             android:layout_height="406dp">
 
+            <ImageView
+                android:id="@+id/workoutPic"
+                android:layout_width="354dp"
+                android:layout_height="141dp"
+                android:layout_alignTop="@+id/caloriesPic"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="-12dp"
+                android:scaleType="fitXY"
+                card_view:srcCompat="@android:color/white" />
+
             <TextView
                 android:id="@+id/workout_title_text"
-                android:layout_width="291dp"
+                android:layout_width="312dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="29dp"
                 android:layout_marginTop="0dp"
-                android:gravity="left"
+                android:gravity="center"
 
                 android:maxLines="1"
                 android:text="Workout title - 28/08/1989" />
@@ -54,12 +64,11 @@
                 android:layout_marginTop="58dp"
                 android:gravity="center"
                 android:text="4:00"
-                android:textStyle="bold"
                 android:textSize="25sp"
-                />
+                android:textStyle="bold" />
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/timerPic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/jTotalTime"
@@ -69,6 +78,7 @@
                 card_view:srcCompat="@drawable/ic_timer_black_24dp" />
 
             <TextView
+                android:id="@+id/jTotalTime_Text"
                 android:layout_width="74dp"
                 android:layout_height="wrap_content"
                 android:layout_alignStart="@+id/jTotalTime"
@@ -82,33 +92,32 @@
                 android:id="@+id/jCaloriesBurnt"
                 android:layout_width="70dp"
                 android:layout_height="30dp"
-                android:layout_alignParentStart="true"
                 android:layout_alignTop="@+id/jTotalTime"
-                android:layout_marginStart="115dp"
+                android:layout_toStartOf="@+id/menuJButton"
                 android:gravity="center"
                 android:text="50"
-                android:textStyle="bold"
                 android:textSize="25sp"
-                />
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/textView15"
+                android:id="@+id/jCaloriesBurnt_Text"
                 android:layout_width="107dp"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
                 android:layout_below="@+id/jTotalTime"
-                android:layout_toEndOf="@+id/jTotalTime"
+                android:layout_marginEnd="12dp"
                 android:gravity="center"
                 android:text="Calories Burnt"
                 android:textSize="12sp" />
 
             <ImageView
-                android:id="@+id/imageView2"
+                android:id="@+id/caloriesPic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_above="@+id/jTotalTime"
-                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
                 android:layout_marginBottom="-58dp"
-                android:layout_marginStart="137dp"
+                android:layout_marginEnd="44dp"
                 card_view:srcCompat="@drawable/ic_whatshot_black_24dp" />
 
         </RelativeLayout>

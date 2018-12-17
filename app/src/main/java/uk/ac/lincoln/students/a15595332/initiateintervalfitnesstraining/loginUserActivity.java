@@ -46,8 +46,10 @@ public class loginUserActivity extends AppCompatActivity {
 
 
         ImageView back = (ImageView) findViewById(R.id.back_image);
+
         Glide
                 .with(this)
+
                 .load(R.drawable.background)
                 //.centerCrop()
                 .into(back);

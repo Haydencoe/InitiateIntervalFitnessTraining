@@ -4,6 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,9 +35,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.muddzdev.styleabletoast.StyleableToast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -64,6 +72,7 @@ public class JournalFragment extends Fragment {
 
     public List<Journal> journalList;
 
+    private static final String DEBUG_TAG = "NetworkStatus";
 
     public int p;
 
@@ -134,9 +143,8 @@ public class JournalFragment extends Fragment {
 
             refreshFlag = false;
 
-            MainActivity mActivity = (MainActivity) getActivity();
-
-            mActivity.mTitle.setText("Journal");
+           // MainActivity mActivity = (MainActivity) getActivity();
+           // mActivity.mTitle.setText("Journal - Device");
 
 
             journalList = new LinkedList<>();
@@ -327,83 +335,115 @@ public class JournalFragment extends Fragment {
 
         ////***********LOAD FROM FIREBASE DATABASE ********************************
 
-        database = FirebaseDatabase.getInstance();
-        refdb = database.getReference();
+        ConnectivityManager cm = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
 
-        String uid = currentUser.getUid();
-        String uname = currentUser.getDisplayName();
+        Log.d(DEBUG_TAG, "Network Info: " + isConnected);
 
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        if (isConnected) {
 
-        DatabaseReference userId = database.child(uid);
 
-        DatabaseReference userName = userId.child(uname);
+            MainActivity mActivity = (MainActivity) getActivity();
+            mActivity.mTitle.setText("Journal - Cloud");
 
-        DatabaseReference myRef = userName.child("Journal");
+            database = FirebaseDatabase.getInstance();
+            refdb = database.getReference();
 
-        Log.i("FIREBASE", "Before Firebase Call");
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i("FIREBASE", "Call Completed");
-                // do my bidding i.e find all the workouts on the database.
+            mAuth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
 
-                for (DataSnapshot jDataSnapshot : dataSnapshot.getChildren()) {
+            String uid = currentUser.getUid();
+            String uname = currentUser.getDisplayName();
 
-                    journalWorkout j = jDataSnapshot.getValue(journalWorkout.class);
-                    Log.i("FIREBASE", "Call Value: " + j);
+            DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-                    String title = j.getJournalTitle();
-                    Log.i("FIREBASE", "Call Title: " + title);
+            DatabaseReference userId = database.child(uid);
 
-                    String time = j.getJournalTime();
-                    Log.i("FIREBASE", "Call Time: " + time);
+            DatabaseReference userName = userId.child(uname);
 
-                    String calories = j.getJournalCalories();
-                    Log.i("FIREBASE", "Call Calories: " + calories);
+            DatabaseReference myRef = userName.child("Journal");
 
-                    String id = j.getJournalId();
-                    Log.i("FIREBASE", "Call Id: " + id);
+            Log.i("FIREBASE", "Before Firebase Call");
+            myRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.i("FIREBASE", "Call Completed");
+                    // do my bidding i.e find all the workouts on the database.
 
-                    Journal jadd = new Journal(title, time, calories, 0);
-                    Log.i("FIREBASE", "Call Object: " + jadd);
+                    for (DataSnapshot jDataSnapshot : dataSnapshot.getChildren()) {
 
-                    journalList.add(jadd);
-                    Log.i("FIREBASE", "Call List Size: " + journalList.size());
+                        journalWorkout j = jDataSnapshot.getValue(journalWorkout.class);
+                        Log.i("FIREBASE", "Call Value: " + j);
+
+                        String title = j.getJournalTitle();
+                        Log.i("FIREBASE", "Call Title: " + title);
+
+                        String time = j.getJournalTime();
+                        Log.i("FIREBASE", "Call Time: " + time);
+
+                        String calories = j.getJournalCalories();
+                        Log.i("FIREBASE", "Call Calories: " + calories);
+
+                        String id = j.getJournalId();
+                        Log.i("FIREBASE", "Call Id: " + id);
+
+
+                        String pictureURL = j.getPictureURL();
+                        Log.i("FIREBASE", "Call Picture URL: " + pictureURL);
+
+                        Journal jadd = new Journal(title, time, calories, 0, pictureURL);
+                        Log.i("FIREBASE", "Call Object: " + jadd);
+
+                        journalList.add(jadd);
+                        Log.i("FIREBASE", "Call List Size: " + journalList.size());
+
+                    }
+
+                    Log.i("FIREBASE", "WHEN DOES THIS HAPPEN? ");
+
+                    // Puts the list in most recently added order.
+                    Collections.reverse(journalList);
+
+
+                    mAdapter.notifyDataSetChanged();
+
+
+                    //refreshFragment();
+
 
                 }
 
-                Log.i("FIREBASE", "WHEN DOES THIS HAPPEN? ");
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-                // Puts the list in most recently added order.
-                Collections.reverse(journalList);
+                    Toast.makeText(getContext(), "Please Check your Internet connection", Toast.LENGTH_LONG).show();
 
+                }
+            });
 
+        }// End of if isConnected.
 
-
-                mAdapter.notifyDataSetChanged();
-
-                //refreshFragment();
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-                Toast.makeText(getContext(), "Please Check your Internet connection", Toast.LENGTH_LONG).show();
-
-            }
-        });
+        else {
 
 
+            StyleableToast.makeText(getContext(), "No network available, please check your connection or load from device.", Toast.LENGTH_LONG, R.style.warningtoast).show();
+
+        }
+
+    }
+
+    public static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+        byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
     }
 
     public void loadFromDevice (){
 
-
+        MainActivity mActivity = (MainActivity) getActivity();
+        mActivity.mTitle.setText("Journal - Device");
 
         ////***********LOAD FROM SQL DATABASE ********************************
         // create our sqlite helper class
@@ -451,6 +491,9 @@ public class JournalFragment extends Fragment {
         }
 
     }
+
+
+
 
     //public void refreshFragment (){
 

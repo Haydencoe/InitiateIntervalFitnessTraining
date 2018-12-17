@@ -3,6 +3,7 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
@@ -10,9 +11,11 @@ import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,20 +55,23 @@ public class PlayingActivity extends AppCompatActivity {
     public MediaPlayer mp;
     public MediaPlayer mp3;
 
+    public Boolean localSound;
 
-    public  SoundPool soundPool;
+    public SoundPool soundPool;
     int bellSoundId;
     int bell3SoundId;
+
+
+    public ImageButton soundButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Prevent orientation layout change.
-        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-
-
+        // Sets the HH:mm format for the start time of the workout.
         Calendar c = Calendar.getInstance();
         SimpleDateFormat dfTime = new SimpleDateFormat("HH", Locale.ENGLISH);
         SimpleDateFormat dfTimeMin = new SimpleDateFormat("mm", Locale.ENGLISH);
@@ -76,7 +82,7 @@ public class PlayingActivity extends AppCompatActivity {
         mp = MediaPlayer.create(getApplicationContext(), R.raw.bell);
         mp3 = MediaPlayer.create(getApplicationContext(), R.raw.bellx3);
 
-
+        // Sets the sounds to thier files for the bell noises.
         soundPool = new SoundPool.Builder()
                 .setMaxStreams(10)
                 .build();
@@ -85,24 +91,20 @@ public class PlayingActivity extends AppCompatActivity {
         bell3SoundId = soundPool.load(this, R.raw.bellx3, 1);
 
 
-
         // Start Time
         calTime = 0;
-
-        try {
-            calTime = Integer.parseInt(calTimeS);
-        } catch (NumberFormatException nfe) {
-
-        }
-
         calTimeMin = 0;
 
+        // Convert Strings to ints with exception handling.
         try {
+
             calTimeMin = Integer.parseInt(calTimeMinS);
-        } catch (NumberFormatException nfe) {
+            calTime = Integer.parseInt(calTimeS);
 
         }
-
+        catch (Exception e) {
+                Log.e("APP", "exception", e);
+            }
 
 
         //Stop the screen from going blank
@@ -110,6 +112,7 @@ public class PlayingActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_playing);
 
+        // Sets the counters for counting how many sets and cycles have lapsed.
         cycleCounter = 1;
         setCounter = 1;
 
@@ -125,54 +128,28 @@ public class PlayingActivity extends AppCompatActivity {
 
         title = timer.getmTitle();
 
+        // Convert Strings to ints with exception handling.
         try {
+
             prepare = Integer.parseInt(timer.getmPrepare());
-        } catch (NumberFormatException nfe) {
-
-        }
-
-        try {
             workout = Integer.parseInt(timer.getmWorkout());
-        } catch (NumberFormatException nfe) {
-
-        }
-
-        try {
             rest = Integer.parseInt(timer.getmRest());
-        } catch (NumberFormatException nfe) {
-
-        }
-
-        try {
             cycles = Integer.parseInt(timer.getmCycles());
-        } catch (NumberFormatException nfe) {
-
-        }
-
-        try {
             sets = Integer.parseInt(timer.getmSets());
-        } catch (NumberFormatException nfe) {
-
-        }
-
-        try {
             setRest = Integer.parseInt(timer.getmSetRest());
-        } catch (NumberFormatException nfe) {
+            coolDown = Integer.parseInt(timer.getmCoolDown());
 
         }
-
-        try {
-            coolDown = Integer.parseInt(timer.getmCoolDown());
-        } catch (NumberFormatException nfe) {
-
+        catch (Exception e) {
+            Log.e("APP", "exception", e);
         }
 
         // This is to allow the whole time to be displayed before the counter starts.
-        prepare = prepare+1;
-        workout = workout+1;
-        rest = rest+1;
-        setRest = setRest+1;
-        coolDown = coolDown+1;
+        prepare = prepare + 1;
+        workout = workout + 1;
+        rest = rest + 1;
+        setRest = setRest + 1;
+        coolDown = coolDown + 1;
 
         //Setting the title of the workout.
         TextView titleText = (TextView) findViewById(R.id.titleText);
@@ -185,11 +162,28 @@ public class PlayingActivity extends AppCompatActivity {
 
 
         TextView cycleText = (TextView) findViewById(R.id.cycleText);
-        cycleText.setText(String.format(Locale.ENGLISH,"C: %d/%d", cycleCounter,cycles ));
+        cycleText.setText(String.format(Locale.ENGLISH, "C: %d/%d", cycleCounter, cycles));
 
 
         TextView setTextNo = (TextView) findViewById(R.id.setTextNo);
-        setTextNo.setText(String.format(Locale.ENGLISH,"S: %d/%d", setCounter,sets ));
+        setTextNo.setText(String.format(Locale.ENGLISH, "S: %d/%d", setCounter, sets));
+
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        localSound =  pref.getBoolean("key_sound", true); // getting boolean
+
+
+        soundButton = (ImageButton) findViewById(R.id.soundImageButton);
+
+        if (localSound){
+
+            soundButton.setImageResource(R.drawable.ic_volume_up_black_24dp);
+        }
+
+        if (!localSound){
+
+            soundButton.setImageResource(R.drawable.ic_volume_off_black_24dp);
+        }
 
 
         //*****  start the prepare *********************************
@@ -199,17 +193,11 @@ public class PlayingActivity extends AppCompatActivity {
         screen.setBackgroundColor(getColor(R.color.prepare_colour));
 
 
-
-
-            // Start the prepare countdown.
-         startTimer();
-
-
+        // Start the prepare countdown.
+        startTimer();
 
 
     }// End of onCreate method.
-
-
 
 
     private void startTimer() {
@@ -218,24 +206,24 @@ public class PlayingActivity extends AppCompatActivity {
         View screen = findViewById(R.id.screen);
         TextView section = (TextView) findViewById(R.id.sectionText);
 
-     countDownTimer = new CountDownTimer((prepare)*1000, 1000) {
+        countDownTimer = new CountDownTimer((prepare) * 1000, 1000) {
 
             //Setting the timer part of the workout.
             TextView timeText = (TextView) findViewById(R.id.timeText);
 
             public void onTick(long millisUntilFinished) {
 
-                long s = (int) (millisUntilFinished / 1000) % 60 ;
-                long m = (int) ((millisUntilFinished / (1000*60)) % 60);
+                long s = (int) (millisUntilFinished / 1000) % 60;
+                long m = (int) ((millisUntilFinished / (1000 * 60)) % 60);
 
-                timeText.setText( String.format(Locale.ENGLISH,"%02d:%02d", m,s));
+                timeText.setText(String.format(Locale.ENGLISH, "%02d:%02d", m, s));
 
-                if (m == 0 & s <= 3)
-                {
+                if (m == 0 & s <= 3) {
                     // Play bell sound for countdown warning of last 3 seconds.
 
-                    soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
-
+                    if (localSound) {
+                        soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
+                    }
                 }
 
             }
@@ -248,10 +236,9 @@ public class PlayingActivity extends AppCompatActivity {
                 timeText.setText(getString(R.string.timer));
 
                 // Play 3 bell end of round sound.
-
-                soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
-
-
+                if (localSound) {
+                    soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
+                }
 
                 playWorkout(); // finish current activity
 
@@ -259,50 +246,43 @@ public class PlayingActivity extends AppCompatActivity {
             }
 
 
-
         }.start();
 
     }
-
-
 
 
     public void playWorkout() {
         //Setting the timer part of the workout.
 
 
+        // Setting the section of the workout.
+        TextView section = (TextView) findViewById(R.id.sectionText);
 
-                // Setting the section of the workout.
-                TextView section = (TextView) findViewById(R.id.sectionText);
-
-                section.setText("Workout");
-                View screen = findViewById(R.id.screen);
-                screen.setBackgroundColor(getColor(R.color.work_colour));
+        section.setText("Workout");
+        View screen = findViewById(R.id.screen);
+        screen.setBackgroundColor(getColor(R.color.work_colour));
 
 
-        countDownTimer = new CountDownTimer((workout)*1000, 1000) {
+        countDownTimer = new CountDownTimer((workout) * 1000, 1000) {
 
             //Setting the timer part of the workout.
             TextView timeText = (TextView) findViewById(R.id.timeText);
 
 
-
             public void onTick(long millisUntilFinished) {
 
-                long s = (int) (millisUntilFinished / 1000) % 60 ;
-                long m = (int) ((millisUntilFinished / (1000*60)) % 60);
+                long s = (int) (millisUntilFinished / 1000) % 60;
+                long m = (int) ((millisUntilFinished / (1000 * 60)) % 60);
 
-                timeText.setText( String.format(Locale.ENGLISH,"%02d:%02d", m,s));
+                timeText.setText(String.format(Locale.ENGLISH, "%02d:%02d", m, s));
 
 
-
-                if (m == 0 & s <= 3)
-                {
-                    // Play bell sound for countdown warning of last 3 seconds.
-                    soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
-
+                if (m == 0 & s <= 3) {
+                    if (localSound) {
+                        // Play bell sound for countdown warning of last 3 seconds.
+                        soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
+                    }
                 }
-
 
 
             }
@@ -313,19 +293,17 @@ public class PlayingActivity extends AppCompatActivity {
                 //Change Timer text
                 timeText.setText(getString(R.string.timer));
 
-                // Play 3 bell end of round sound.
-                soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
+                if (localSound) {
+                    // Play 3 bell end of round sound.
+                    soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
+                }
 
+                countDownTimer.cancel();
 
-                        countDownTimer.cancel();
-
-                        playRest(); // finish current activity
-
-
+                playRest(); // finish current activity
 
 
             }
-
 
 
         }.start();
@@ -345,7 +323,7 @@ public class PlayingActivity extends AppCompatActivity {
         //startTimer(rest * 1000);WWHHHYYYYY!!
 
 
-        countDownTimer = new CountDownTimer((rest)*1000, 1000) {
+        countDownTimer = new CountDownTimer((rest) * 1000, 1000) {
 
             //Setting the timer part of the workout.
             TextView timeText = (TextView) findViewById(R.id.timeText);
@@ -353,21 +331,18 @@ public class PlayingActivity extends AppCompatActivity {
 
             public void onTick(long millisUntilFinished) {
 
-                long s = (int) (millisUntilFinished / 1000) % 60 ;
-                long m = (int) ((millisUntilFinished / (1000*60)) % 60);
+                long s = (int) (millisUntilFinished / 1000) % 60;
+                long m = (int) ((millisUntilFinished / (1000 * 60)) % 60);
 
-                timeText.setText( String.format(Locale.ENGLISH,"%02d:%02d", m,s));
-
-
+                timeText.setText(String.format(Locale.ENGLISH, "%02d:%02d", m, s));
 
 
+                if (m == 0 & s <= 3) {
 
-                if (m == 0 & s <= 3)
-                {
-                    // Play bell sound for countdown warning of last 3 seconds.
-                    soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
-
-
+                    if (localSound) {
+                        // Play bell sound for countdown warning of last 3 seconds.
+                        soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
+                    }
 
                 }
 
@@ -377,22 +352,21 @@ public class PlayingActivity extends AppCompatActivity {
             public void onFinish() {
 
 
-
                 // Change Timer text 00:00
                 timeText.setText(getString(R.string.timer));
 
-                // Play 3 bell end of round sound.
-                soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
-
+                if (localSound) {
+                    // Play 3 bell end of round sound.
+                    soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
+                }
 
                 cycleCounter++;
-
 
 
                 countDownTimer.cancel();
 
                 // Cycle count reached.
-                if (cycleCounter>cycles) {
+                if (cycleCounter > cycles) {
 
 
                     playSetRest();
@@ -402,7 +376,7 @@ public class PlayingActivity extends AppCompatActivity {
                 // More cycles left to go.
                 if (cycleCounter <= cycles) {
 
-                   // Update the cycle count text view.
+                    // Update the cycle count text view.
                     TextView cycleText = (TextView) findViewById(R.id.cycleText);
 
                     cycleText.setText(String.format(Locale.ENGLISH, "C: %d/%d", cycleCounter, cycles));
@@ -413,21 +387,16 @@ public class PlayingActivity extends AppCompatActivity {
                 }
 
 
-
-
             }
-
 
 
         }.start();
 
 
-
-
     }
 
 
-    public void playSetRest(){
+    public void playSetRest() {
 
         final TextView section = (TextView) findViewById(R.id.sectionText);
         section.setText("Set Rest");
@@ -435,22 +404,24 @@ public class PlayingActivity extends AppCompatActivity {
         screen.setBackgroundColor(getColor(R.color.set_rest_colour));
 
 
-        new CountDownTimer(setRest*1000, 1000) {
+        new CountDownTimer(setRest * 1000, 1000) {
 
             //Setting the timer part of the workout.
             TextView timeText = (TextView) findViewById(R.id.timeText);
 
             public void onTick(long millisUntilFinished) {
 
-                long s = (int) (millisUntilFinished / 1000) % 60 ;
-                long m = (int) ((millisUntilFinished / (1000*60)) % 60);
+                long s = (int) (millisUntilFinished / 1000) % 60;
+                long m = (int) ((millisUntilFinished / (1000 * 60)) % 60);
 
-                timeText.setText( String.format(Locale.ENGLISH,"%02d:%02d", m,s));
+                timeText.setText(String.format(Locale.ENGLISH, "%02d:%02d", m, s));
 
-                if (m == 0 & s <= 3)
-                {
-                    // Play bell sound for countdown warning of last 3 seconds.
-                    soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
+                if (m == 0 & s <= 3) {
+
+                    if (localSound) {
+                        // Play bell sound for countdown warning of last 3 seconds.
+                        soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
+                    }
                 }
 
 
@@ -461,52 +432,45 @@ public class PlayingActivity extends AppCompatActivity {
                 // Change Timer text 00:00
                 timeText.setText(getString(R.string.timer));
 
-                // Play 3 bell, end of round sound.
-                soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
-
+                if (localSound) {
+                    // Play 3 bell, end of round sound.
+                    soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
+                }
 
                 // Increase the set count
-               setCounter++;
+                setCounter++;
 
                 // Reset the cycle counter at the end of a set.
                 cycleCounter = 1;
 
 
+                // Set count has been reached
+
+                if (setCounter > sets) {
+
+                    playCooldown();
+
+                }
 
 
-                        // Set count has been reached
+                // More sets left to go.
 
-                        if (setCounter>sets) {
-
-                            playCooldown();
-
-                            }
+                if (setCounter <= sets) {
 
 
-                            // More sets left to go.
-
-                        if (setCounter <= sets) {
-
-
-                            // Update cycle counter text view.
-                            TextView cycleText = (TextView) findViewById(R.id.cycleText);
-                            cycleText.setText(String.format(Locale.ENGLISH, "C: %d/%d", cycleCounter, cycles));
+                    // Update cycle counter text view.
+                    TextView cycleText = (TextView) findViewById(R.id.cycleText);
+                    cycleText.setText(String.format(Locale.ENGLISH, "C: %d/%d", cycleCounter, cycles));
 
 
-                            // Update set counter text view.
-                            TextView setText = (TextView) findViewById(R.id.setTextNo);
-                            setText.setText(String.format(Locale.ENGLISH, "S: %d/%d", setCounter, sets));
+                    // Update set counter text view.
+                    TextView setText = (TextView) findViewById(R.id.setTextNo);
+                    setText.setText(String.format(Locale.ENGLISH, "S: %d/%d", setCounter, sets));
 
-                            // Go back to start of set
-                            playWorkout();
+                    // Go back to start of set
+                    playWorkout();
 
-                            }
-
-
-
-
-
-
+                }
 
 
             }
@@ -516,7 +480,7 @@ public class PlayingActivity extends AppCompatActivity {
     }
 
 
-    public void playCooldown(){
+    public void playCooldown() {
 
         final TextView section = (TextView) findViewById(R.id.sectionText);
         section.setText("Cool down");
@@ -524,24 +488,24 @@ public class PlayingActivity extends AppCompatActivity {
         screen.setBackgroundColor(getColor(R.color.cool_colour));
 
 
-        new CountDownTimer(coolDown*1000, 1000) {
+        new CountDownTimer(coolDown * 1000, 1000) {
 
             //Setting the timer part of the workout.
             TextView timeText = (TextView) findViewById(R.id.timeText);
 
             public void onTick(long millisUntilFinished) {
 
-                long s = (int) (millisUntilFinished / 1000) % 60 ;
-                long m = (int) ((millisUntilFinished / (1000*60)) % 60);
+                long s = (int) (millisUntilFinished / 1000) % 60;
+                long m = (int) ((millisUntilFinished / (1000 * 60)) % 60);
 
-                timeText.setText( String.format(Locale.ENGLISH,"%02d:%02d", m,s));
+                timeText.setText(String.format(Locale.ENGLISH, "%02d:%02d", m, s));
 
-                if (m == 0 & s <= 3)
-                {
-                    // Play bell sound for countdown warning of last 3 seconds.
-                    MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.bell);
-                    mp.start();
-                }
+                if (m == 0 & s <= 3) {
+                    if (localSound) {
+                        // Play bell sound for countdown warning of last 3 seconds.
+                        soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
+                    }
+                    }
 
             }
 
@@ -550,6 +514,16 @@ public class PlayingActivity extends AppCompatActivity {
                 // Change Timer text 00:00
                 timeText.setText(getString(R.string.timer));
 
+
+                if (localSound) {
+                    // Play 3 bell, end of round sound.
+                    soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
+                }
+
+                // Start the end of the workout.
+                end();
+
+                /*
                 // Play 3 bell end of round sound.
                 MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.bellx3);
                 mp.start();
@@ -560,18 +534,15 @@ public class PlayingActivity extends AppCompatActivity {
 
                         mp.release();
 
-                // Start the end of the workout.
-                end();
+
 
 
                     }
                 });// end of mp listener
 
-
+*/
 
             }
-
-
 
 
         }.start();
@@ -580,7 +551,7 @@ public class PlayingActivity extends AppCompatActivity {
     }
 
 
-    public void end(){
+    public void end() {
 
         final TextView section = (TextView) findViewById(R.id.sectionText);
         section.setText("Finished!");
@@ -588,8 +559,7 @@ public class PlayingActivity extends AppCompatActivity {
         screen.setBackgroundColor(getColor(R.color.gold_colour));
 
 
-
-        new CountDownTimer(3000, 1000) {
+        new CountDownTimer(1000, 1000) {
 
             public void onTick(long millisUntilFinished) {
 
@@ -646,10 +616,44 @@ public class PlayingActivity extends AppCompatActivity {
 
     }
 
+    public void soundButton(View v) {
+
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+
+        ImageButton soundButton = (ImageButton) findViewById(R.id.soundImageButton);
+
+        if (localSound) {
+            soundButton.setImageResource(R.drawable.ic_volume_off_black_24dp);
+            localSound = false;
+            editor.putBoolean("key_sound", false); // Storing boolean - true/false
+            editor.apply(); // commit changes
+        }
+
+        else {
+            soundButton.setImageResource(R.drawable.ic_volume_up_black_24dp);
+            localSound  = true;
+            editor.putBoolean("key_sound", true); // Storing boolean - true/false
+            editor.apply(); // commit changes
+        }
+
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        // Harware back button press stuff here
+
+        // Cancel timer.
+        countDownTimer.cancel();
+
+
+
+        super.onBackPressed();
+    }
+
 
 }
-
-
  /*
                 TextView cycleText = (TextView) findViewById(R.id.cycleText);
                 counter = 1;

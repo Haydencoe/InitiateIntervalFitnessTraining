@@ -1,11 +1,22 @@
 package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
+
+import java.io.IOException;
 
 public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -14,6 +25,11 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
     private final TextView jTotalTime;
     private final TextView jCalories;
 
+    private final TextView jTotalTime_Text;
+    private final TextView jCalories_Text;
+
+
+    private final ImageView jPicture;
 
     private Journal journal;
 
@@ -22,6 +38,7 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
     private final JCustomItemClickListener mListener;
 
     private final ImageButton menuJButton;
+
 
     public JournalsHolder(Context context, View itemView, JCustomItemClickListener listener) {
 
@@ -34,6 +51,11 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
         this.jTitle = (TextView) itemView.findViewById(R.id.workout_title_text);
         this.jTotalTime = (TextView) itemView.findViewById(R.id.jTotalTime);
         this.jCalories = (TextView) itemView.findViewById(R.id.jCaloriesBurnt);
+
+        this.jPicture = (ImageView) itemView.findViewById(R.id.workoutPic);
+
+        this.jCalories_Text = (TextView) itemView.findViewById(R.id.jCaloriesBurnt_Text);
+        this.jTotalTime_Text = (TextView) itemView.findViewById(R.id.jTotalTime_Text);
 
 
         this.menuJButton = (ImageButton) itemView.findViewById(R.id.menuJButton);
@@ -55,7 +77,46 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
         this.jTotalTime.setText(journal.getmJTotalTime());
         this.jCalories.setText(journal.getmJCalories());
 
+       //
 
+
+        String imageCheck = journal.getmPictureURL();
+
+        if (imageCheck != null)
+
+        {
+            try {
+
+
+                Bitmap image = decodeFromFirebaseBase64(journal.getmPictureURL());
+
+                if (image != null)
+                    //this.jPicture.setImageBitmap(image);
+
+                    jTotalTime.setTextColor(Color.WHITE);
+                    jTotalTime_Text.setTextColor(Color.WHITE);
+                    jCalories.setTextColor(Color.WHITE);
+                    jCalories_Text.setTextColor(Color.WHITE);
+
+                Glide
+                        .with(context)
+                        .load(image)
+                        .apply(new RequestOptions()
+                        .fitCenter()
+                        .centerCrop()
+                        )
+
+                        //.apply(RequestOptions.bitmapTransform(new RoundedCorners(0)))
+
+                        //.centerCrop()
+                        .into(jPicture);
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
 
 
     }
@@ -84,6 +145,10 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     }// End of onClick method.
 
+    public static Bitmap decodeFromFirebaseBase64(String image) throws IOException {
+        byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+    }
 
 
 

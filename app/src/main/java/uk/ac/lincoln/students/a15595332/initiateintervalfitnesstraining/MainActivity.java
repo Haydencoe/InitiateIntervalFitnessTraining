@@ -2,6 +2,7 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -19,6 +20,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,7 +51,7 @@ import java.util.Locale;
 import es.dmoral.toasty.Toasty;
 
 
-public class MainActivity extends AppCompatActivity implements TimersFragment.OnFragmentInteractionListener, RunningFragment.OnFragmentInteractionListener, JournalFragment.OnFragmentInteractionListener  {
+public class MainActivity extends AppCompatActivity implements TimersFragment.OnFragmentInteractionListener, UserFragment.OnFragmentInteractionListener, JournalFragment.OnFragmentInteractionListener  {
 
     private SQLiteDatabaseHandler db;
 
@@ -131,16 +133,15 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                     transaction.commit();
                     return true;
 
-                case R.id.navigation_running:
+                case R.id.navigation_user:
 
                     FragmentTransaction transaction2 = getSupportFragmentManager().beginTransaction();
-                    selectedFragment = RunningFragment.newInstance("A","B");
+                    selectedFragment = UserFragment.newInstance("A","B");
                     transaction2.replace(R.id.frame_layout, selectedFragment);
                     transaction2.commit();
                     return true;
 
                 case R.id.navigation_journal:
-
 
 
                     FragmentTransaction transaction3 = getSupportFragmentManager().beginTransaction();
@@ -160,6 +161,9 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Prevent orientation layout change.
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -228,6 +232,10 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.my_menu, menu);
+
+
+
+
         return true;
     }
 
@@ -243,14 +251,10 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
 
 
-
-
     // Data returned when the done button is pressed in the new timer activity.
    public void onActivityResult(int requestCode, int resultCode, Intent data) {
        if (requestCode == 1) {
            if (resultCode == RESULT_OK) {
-
-               //Toast toast =  Toast.makeText(this, "Code 1", Toast.LENGTH_SHORT); toast.show();
 
                String workoutTitleValue = data.getStringExtra("workoutTitleValue");
                String prepareValue = data.getStringExtra("prepareValue");
@@ -261,48 +265,21 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                String setRestValue = data.getStringExtra("setRestValue");
                String coolDownVaue = data.getStringExtra("coolDownValue");
 
-
                try {
                    prepare = Integer.parseInt(prepareValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    workout = Integer.parseInt(workoutTimeValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    rest = Integer.parseInt(restValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    cycles = Integer.parseInt(cyclesValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    sets = Integer.parseInt(setsValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    setRest = Integer.parseInt(setRestValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    coolDown = Integer.parseInt(coolDownVaue);
-               } catch (NumberFormatException nfe) {
 
                }
+
+               catch (Exception e) {
+                   Log.e("APP", "exception", e);
+               }
+
 
                int total = prepare + ((((workout+rest)*cycles)+setRest)*sets) + coolDown;
 
@@ -362,8 +339,6 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
        if (requestCode == 2) {
            if (resultCode == RESULT_OK) {
 
-               //Toast toast =  Toast.makeText(this, "Code 2", Toast.LENGTH_SHORT); toast.show();
-
                String workoutTitleValue = data.getStringExtra("workoutTitleValue");
                String prepareValue = data.getStringExtra("prepareValue");
                String workoutTimeValue = data.getStringExtra("workoutTimeValue");
@@ -376,44 +351,17 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
                try {
                    prepare = Integer.parseInt(prepareValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    workout = Integer.parseInt(workoutTimeValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    rest = Integer.parseInt(restValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    cycles = Integer.parseInt(cyclesValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    sets = Integer.parseInt(setsValue);
-               } catch (NumberFormatException nfe) {
-
-               }
-
-               try {
                    setRest = Integer.parseInt(setRestValue);
-               } catch (NumberFormatException nfe) {
+                   coolDown = Integer.parseInt(coolDownVaue);
 
                }
 
-               try {
-                   coolDown = Integer.parseInt(coolDownVaue);
-               } catch (NumberFormatException nfe) {
-
+               catch (Exception e) {
+                   Log.e("APP", "exception", e);
                }
 
                int total = prepare + ((((workout+rest)*cycles)+setRest)*sets) + coolDown;
