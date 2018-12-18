@@ -128,12 +128,7 @@ public class JournalFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-
-
     }
-
-
-
 
 
     @Override
@@ -148,40 +143,9 @@ public class JournalFragment extends Fragment {
 
 
             journalList = new LinkedList<>();
-
-
-
-        //db = new SQLiteDatabaseHandler(getActivity());
-
-
+            //db = new SQLiteDatabaseHandler(getActivity());
         loadFromDevice();
 
-
-/*
-        journalList = db.allJournal();
-
-        if (journalList != null) {
-
-            String[] itemsNames = new String[journalList.size()];
-
-            for (int i = 0; i < journalList.size(); i++) {
-
-                itemsNames[i] = journalList.get(i).toString();
-
-            }
-
-        }
-
-        if (journalList == null) {
-
-
-        }
-
-
-
-        // Puts the list in most recently added order.
-        Collections.reverse(journalList);
-*/
 
         // Setup our RecyclerView
 
@@ -300,6 +264,8 @@ public class JournalFragment extends Fragment {
                                             // delete one from the data base.
                                             db.deleteOneJournal(id);
 
+
+                                            //firebase.child(id).removeValue();
                                             // delete from the displayed list.
                                             journalList.remove(p);
 
@@ -493,13 +459,6 @@ public class JournalFragment extends Fragment {
     }
 
 
-
-
-    //public void refreshFragment (){
-
-   // }
-
-
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -629,3 +588,29 @@ public class JournalFragment extends Fragment {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference();
         */
+
+         /*
+        journalList = db.allJournal();
+
+        if (journalList != null) {
+
+            String[] itemsNames = new String[journalList.size()];
+
+            for (int i = 0; i < journalList.size(); i++) {
+
+                itemsNames[i] = journalList.get(i).toString();
+
+            }
+
+        }
+
+        if (journalList == null) {
+
+
+        }
+
+
+
+        // Puts the list in most recently added order.
+        Collections.reverse(journalList);
+*/

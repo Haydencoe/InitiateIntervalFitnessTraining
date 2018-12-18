@@ -141,6 +141,7 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         timers.setmCaloriesBurnt(cursor.getString(10));
 
         cursor.close();
+        db.close();
         return timers;
     }
 
@@ -172,6 +173,7 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
 
 
         cursor.close();
+        db.close();
         return timers;
     }
 
@@ -252,6 +254,7 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         journal.setmPictureURL(cursor.getString(4));
 
         cursor.close();
+        db.close();
         return journal;
     }
 
@@ -279,6 +282,7 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
 
 
         cursor.close();
+        db.close();
         return journals;
     }
 

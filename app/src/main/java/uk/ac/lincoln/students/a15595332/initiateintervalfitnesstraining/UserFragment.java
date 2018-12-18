@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -16,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,12 +32,15 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInApi;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.fitness.FitnessOptions;
@@ -104,11 +109,13 @@ public class UserFragment extends Fragment {
         // Required empty public constructor
     }
 
+    public boolean sign;
+
     private GoogleApiClient mClient = null;
 
     public String TAG = "Google Fit";
 
-    int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 0533;
+    int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 1234;
 
 
     private SQLiteDatabaseHandler db;
@@ -205,21 +212,41 @@ public class UserFragment extends Fragment {
 
             ImageButton button = (ImageButton) rootView.findViewById(R.id.googleFitButton);
             TextView dataLabel = (TextView) rootView.findViewById(R.id.dataTextView);
-
+            Button signOut = (Button) rootView.findViewById(R.id.signOutButton);
 
             fitnessOptions = FitnessOptions.builder()
                     .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                     .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                     .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
+                    .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
                     .build();
 
 
-            // This invokes when the user has already given permission for google fit access.
-            if (GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(getContext()), fitnessOptions)) {
+
+        SharedPreferences pref = getContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+        sign =  pref.getBoolean("key_sign", false); // getting boolean
+
+
+        Log.d("Sign", "Result" + sign);
+
+
+
+        // This invokes when the user has already given permission for google fit access.
+            //if (GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(getContext()), fitnessOptions)) {
+
+        if (sign) {
+                Log.d("Permission", "Has start up permission");
 
                 button.setVisibility(View.INVISIBLE);
                 dataLabel.setVisibility(View.INVISIBLE);
 
+                heightTV.setVisibility(View.VISIBLE);
+                weightTV.setVisibility(View.VISIBLE);
+
+                signOut.setVisibility(View.VISIBLE);
+
+
+                // Network connected check.
                 ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -233,7 +260,7 @@ public class UserFragment extends Fragment {
                     readHistoryData();
                 }
 
-                else
+                else // not connected
 
                 {
                     // create our sqlite helper class
@@ -267,13 +294,15 @@ public class UserFragment extends Fragment {
 
 
 
-            }
+            }// end of has permisison*/
 
 
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // do something
+
+
 
                     ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -285,15 +314,39 @@ public class UserFragment extends Fragment {
 
                     if (isConnected) {
 
+                        SharedPreferences pref = getContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+                        SharedPreferences.Editor editor = pref.edit();
+
+                        editor.putBoolean("key_sign", true); // Storing boolean - true/false
+                        editor.apply(); // commit changes
+                        sign = true;
+
+
                         if (!GoogleSignIn.hasPermissions(GoogleSignIn.getLastSignedInAccount(getContext()), fitnessOptions)) {
+
                             GoogleSignIn.requestPermissions(
                                     getActivity(), // your activity
                                     GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
-                                    GoogleSignIn.getLastSignedInAccount(getContext()),
-                                    fitnessOptions);
+                                    GoogleSignIn.getLastSignedInAccount(getContext()), fitnessOptions
+                                   );
+
+                            Log.d("Click", "if");
+
+
 
 
                         } else {
+
+
+                            Log.d("Click", "else");
+
+
+                            GoogleSignIn.requestPermissions(
+                                    getActivity(), // your activity
+                                    GOOGLE_FIT_PERMISSIONS_REQUEST_CODE,
+                                    GoogleSignIn.getLastSignedInAccount(getContext()), fitnessOptions
+                            );
+
                             readHistoryData();
 
                         }
@@ -303,15 +356,51 @@ public class UserFragment extends Fragment {
 
                     else {
 
-                        StyleableToast.makeText(getContext(), "Connected to a network to access Google Fit", Toast.LENGTH_LONG, R.style.warningtoast).show();
+                        StyleableToast.makeText(getContext(), "Connect to a network to access Google Fit", Toast.LENGTH_LONG, R.style.warningtoast).show();
                     }
 
                 }
             });
 
 
+        signOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // do sign out
+
+                Fitness.getConfigClient(getActivity(), GoogleSignIn.getLastSignedInAccount(getContext())).disableFit();
+
+                ((MainActivity)getActivity()).signOut(getContext());
+
+                ImageButton button = (ImageButton) rootView.findViewById(R.id.googleFitButton);
+                TextView dataLabel = (TextView) rootView.findViewById(R.id.dataTextView);
+                Button signOut = (Button) rootView.findViewById(R.id.signOutButton);
+                TextView heightLabel = (TextView) rootView.findViewById(R.id.heightTV);
+                TextView weightLabel = (TextView) rootView.findViewById(R.id.weightTV);
+
+                button.setVisibility(View.VISIBLE);
+                dataLabel.setVisibility(View.VISIBLE);
+
+                signOut.setVisibility(View.INVISIBLE);
+                heightLabel.setVisibility(View.INVISIBLE);
+                weightLabel.setVisibility(View.INVISIBLE);
 
 
+                SharedPreferences pref = getContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
+                SharedPreferences.Editor editor = pref.edit();
+
+                editor.putBoolean("key_sign", false); // Storing boolean - true/false
+                editor.apply(); // commit changes
+                sign = false;
+
+                Log.d("Sign", "Result" + sign);
+
+                Log.d("Log state", "signed out");
+
+
+            }
+
+        });
 
 
 
@@ -325,16 +414,16 @@ public class UserFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
+       // super.onActivityResult(requestCode, resultCode, data); //comment this unless you want to pass your result to the activity.
+
             if (requestCode == GOOGLE_FIT_PERMISSIONS_REQUEST_CODE) {
 
-                ImageButton button = (ImageButton) rootView.findViewById(R.id.googleFitButton);
-                TextView dataLabel = (TextView) rootView.findViewById(R.id.dataTextView);
-                button.setVisibility(View.INVISIBLE);
-                dataLabel.setVisibility(View.INVISIBLE);
+                if (resultCode == Activity.RESULT_OK) {
+
+                    Toast toast = Toast.makeText(getContext(), "This is happening", Toast.LENGTH_SHORT); toast.show();
+                Log.d("HAPPENING", "this is");
 
                 readHistoryData();
-
 
             }
         }
@@ -345,10 +434,20 @@ public class UserFragment extends Fragment {
 
 
 
+
     /**
      * Asynchronous task to read the history data. When the task succeeds, it will print out the data.
      */
-    private Task<DataReadResponse> readHistoryData() {
+    public Task<DataReadResponse> readHistoryData() {
+
+        ImageButton button = (ImageButton) rootView.findViewById(R.id.googleFitButton);
+        TextView dataLabel = (TextView) rootView.findViewById(R.id.dataTextView);
+        Button signOut = (Button) rootView.findViewById(R.id.signOutButton);
+
+        button.setVisibility(View.INVISIBLE);
+        dataLabel.setVisibility(View.INVISIBLE);
+
+        signOut.setVisibility(View.VISIBLE);
 
 
 
@@ -389,7 +488,7 @@ public class UserFragment extends Fragment {
         Date now = new Date();
         cal.setTime(now);
         long endTime = cal.getTimeInMillis();
-        cal.add(Calendar.WEEK_OF_YEAR, -52);
+        cal.add(Calendar.YEAR, -5);
         long startTime = cal.getTimeInMillis();
 
         java.text.DateFormat dateFormat = getDateInstance();
@@ -511,22 +610,23 @@ public class UserFragment extends Fragment {
         }
 
 
-
-
-
         heightText = "Height: " + setHeight;
         weightText = "Weight: " + setWeight;
+
+
+        heightTV.setVisibility(View.VISIBLE);
+        weightTV.setVisibility(View.VISIBLE);
 
         heightTV.setText(weightText);
         weightTV.setText(heightText);
 
 
-        // create our sqlite helper class
+        // create our sqlLite helper class
         db = new SQLiteDatabaseHandler(getContext());
         // create new timer
         User user1 = new User(1,setHeight,setWeight);
 
-        // Cheacker for data in the user SQLite table
+        // Checker for data in the user SQLite table
         boolean userData = db.CheckIsDataAlreadyInDBorNot("User", "UId", "1");
 
         if (userData) {
@@ -545,10 +645,6 @@ public class UserFragment extends Fragment {
 
 
 
-
-
-
-
     private void dumpSession(Session session) {
         DateFormat dateFormat = getTimeInstance();
         Log.i(TAG, "Data returned for Session: " + session.getName()
@@ -559,7 +655,7 @@ public class UserFragment extends Fragment {
 
 
 
-    // TODO: Rename method, update argument and hook method into UI event
+
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -598,12 +694,19 @@ public class UserFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+
         void onFragmentInteraction(Uri uri);
     }
 
 
-    /** Returns the current state of the permissions needed. */
+
+
+
+
+}// End of class.
+
+
+/*
     private boolean hasRuntimePermissions() {
         int permissionState =
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
@@ -620,7 +723,7 @@ public class UserFragment extends Fragment {
         if (shouldProvideRationale) {
             Log.i(TAG, "Displaying permission rationale to provide additional context.");
 
-            /*
+
             //Snackbar.make(findViewById(R.id.main_activity_view), R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.ok, new View.OnClickListener() {
                         @Override
@@ -632,7 +735,7 @@ public class UserFragment extends Fragment {
                         }
                     })
                     .show();
-       */
+
 
         } else {
             Log.i(TAG, "Requesting permission");
@@ -645,14 +748,19 @@ public class UserFragment extends Fragment {
         }
     }
 
-    /**
-     * Callback received when a permissions request has been completed.
-     */
+*/
+
+/**
+ * Callback received when a permissions request has been completed.
+ */
+   /*
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
         Log.i(TAG, "onRequestPermissionResult");
+
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
@@ -660,6 +768,8 @@ public class UserFragment extends Fragment {
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission was granted.
                 //insertAndVerifySessionWrapper();
+
+
 
             } else {
                 // Permission denied.
@@ -677,7 +787,7 @@ public class UserFragment extends Fragment {
 
                 //Snackbar.make(findViewById(R.id.main_activity_view),R.string.permission_denied_explanation,Snackbar.LENGTH_INDEFINITE)
 
-                /*
+
                 .setAction(R.string.settings, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -693,15 +803,18 @@ public class UserFragment extends Fragment {
                             }
                         })
                         .show();
-            */
+
 
             }
         }
     }
+*/
+ /*
+                            ImageButton button = (ImageButton) rootView.findViewById(R.id.googleFitButton);
+                            TextView dataLabel = (TextView) rootView.findViewById(R.id.dataTextView);
+                            Button signOut = (Button) rootView.findViewById(R.id.signOutButton);
 
-
-
-
-
-
-}
+                            button.setVisibility(View.INVISIBLE);
+                            dataLabel.setVisibility(View.INVISIBLE);
+                            signOut.setVisibility(View.VISIBLE);
+*/

@@ -35,6 +35,8 @@ import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.fitness.Fitness;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -130,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                     FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
                     selectedFragment = TimersFragment.newInstance("A","B");
                     transaction.replace(R.id.frame_layout, selectedFragment);
+
                     transaction.commit();
                     return true;
 
@@ -448,8 +451,27 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
        }// End of if 3
 
+       if (requestCode == 1234) {
+
+           if (resultCode == RESULT_OK) {
+               Log.d("Main Request Code", "1234");
+
+
+               UserFragment fragment = (UserFragment) getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+               fragment.readHistoryData();
+
+
+           }
+       }
 
    }// end of activity result method.
+
+
+    public void signOut(Context context) {
+
+        Fitness.getConfigClient(this, GoogleSignIn.getLastSignedInAccount(context)).disableFit();
+    }
+
 
 }// End of class.
 

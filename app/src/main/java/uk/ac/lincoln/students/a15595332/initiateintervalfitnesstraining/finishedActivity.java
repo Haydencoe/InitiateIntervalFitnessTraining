@@ -490,14 +490,6 @@ public class finishedActivity extends AppCompatActivity {
     }// End of saveWorkoutButton method.
 
 
-    public void encodeBitmapAndSaveToFirebase(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-
-    }
-
-
 
     public void cancelButton(View v) {
 
@@ -755,7 +747,10 @@ public class finishedActivity extends AppCompatActivity {
         FitnessOptions fitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_LOCATION_SAMPLE, FitnessOptions.ACCESS_WRITE)
                 .addDataType(DataType.TYPE_ACTIVITY_SEGMENT, FitnessOptions.ACCESS_WRITE)
-
+                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.TYPE_WEIGHT, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.TYPE_HEIGHT, FitnessOptions.ACCESS_READ)
                 .build();
 
         Scope scopeLocation = new Scope(Scopes.FITNESS_LOCATION_READ_WRITE);
@@ -843,7 +838,7 @@ public class finishedActivity extends AppCompatActivity {
 
 
             else { // Result was a failure
-                Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
 
 
@@ -995,38 +990,6 @@ public class finishedActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "NetworkStatusExample";
 
 
-
-    public boolean isOnline() {
-
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-
-        boolean isWifiConn = false;
-        boolean isMobileConn = false;
-
-        for (Network network : connMgr.getAllNetworks()) {
-             networkInfo = connMgr.getNetworkInfo(network);
-            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                isWifiConn |= networkInfo.isConnected();
-            }
-            if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-                isMobileConn |= networkInfo.isConnected();
-            }
-        }
-
-
-        Log.d(DEBUG_TAG, "Wifi connected: " + isWifiConn);
-        Log.d(DEBUG_TAG, "Mobile connected: " + isMobileConn);
-
-
-        Log.d(DEBUG_TAG, "networkInfo: " + networkInfo);
-
-        return (networkInfo != null && networkInfo.isConnected());
-
-
-    }
 
 
 
@@ -1183,3 +1146,49 @@ public class finishedActivity extends AppCompatActivity {
 
 
 */
+
+
+/*
+    public void encodeBitmapAndSaveToFirebase(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+    }
+*/
+
+/*
+  public boolean isOnline() {
+
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+
+        boolean isWifiConn = false;
+        boolean isMobileConn = false;
+
+        for (Network network : connMgr.getAllNetworks()) {
+             networkInfo = connMgr.getNetworkInfo(network);
+            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                isWifiConn |= networkInfo.isConnected();
+            }
+            if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+                isMobileConn |= networkInfo.isConnected();
+            }
+        }
+
+
+        Log.d(DEBUG_TAG, "Wifi connected: " + isWifiConn);
+        Log.d(DEBUG_TAG, "Mobile connected: " + isMobileConn);
+
+
+        Log.d(DEBUG_TAG, "networkInfo: " + networkInfo);
+
+        return (networkInfo != null && networkInfo.isConnected());
+
+
+    }
+
+
+ */

@@ -108,15 +108,7 @@ public class TimersFragment extends Fragment {
         //InitializeSQLCipher();
     }
 
-    /*
-    private void InitializeSQLCipher() {
 
-        File databaseFile = mContext.getDatabasePath("TimersDB");
-        databaseFile.mkdirs();
-        databaseFile.delete();
-        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(databaseFile,"secret",null);
-
-    }*/
 
 
 
@@ -393,3 +385,13 @@ public class TimersFragment extends Fragment {
         timersList.add(new Timers("Sit ups" , "12", "30", "15", "5"));
         timersList.add(new Timers("Burpees" , "15", "45", "20", "3"));
         */
+
+         /*
+    private void InitializeSQLCipher() {
+
+        File databaseFile = mContext.getDatabasePath("TimersDB");
+        databaseFile.mkdirs();
+        databaseFile.delete();
+        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(databaseFile,"secret",null);
+
+    }*/
