@@ -35,9 +35,6 @@
         <activity android:name=".NewTimer" />
         <activity android:name=".PlayingActivity" />
         <activity android:name=".finishedActivity" />
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login" />
         <activity android:name=".loginUserActivity"></activity>
 
 

@@ -8,8 +8,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,37 +39,29 @@ import static android.app.Activity.RESULT_OK;
  * create an instance of this fragment.
  */
 public class TimersFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-
     private TimersAdapter mAdapter;
     private RecyclerView mRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private Context mContext;
-
-
     public  List<Timers> timersList;
-
-    public  CustomItemClickListener cListener;
-
-    public int p;
-
     private SQLiteDatabaseHandler db;
+    private OnFragmentInteractionListener mListener;
+
+    // ints
+    public int p; // Position
+
+
 
     public SQLiteDatabase mDatabase;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private Context mContext;
+    public  CustomItemClickListener cListener;
 
-    //public ArrayList<Timers> timersList = new ArrayList<>();
-
-
-
-    private OnFragmentInteractionListener mListener;
 
     public TimersFragment() {
         // Required empty public constructor
@@ -81,7 +75,7 @@ public class TimersFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment TimersFragment.
      */
-    // TODO: Rename and change types and number of parameters
+
     public static TimersFragment newInstance(String param1, String param2) {
         TimersFragment fragment = new TimersFragment();
         Bundle args = new Bundle();
@@ -103,13 +97,7 @@ public class TimersFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-
-
-        //InitializeSQLCipher();
     }
-
-
-
 
 
 
@@ -124,35 +112,36 @@ public class TimersFragment extends Fragment {
 
         // **** Layout for the timer's list *************************************************************
 
-
         // create our sqlite helper class
         db = new SQLiteDatabaseHandler(getActivity());
 
+        // Exception handing incase the database can't fill the timers list.
+        try {
 
+            timersList = db.allTimers();
 
-        timersList = db.allTimers();
+            if (timersList != null) {
 
-        if (timersList != null) {
+                String[] itemsNames = new String[timersList.size()];
 
-            String[] itemsNames = new String[timersList.size()];
+                for (int i = 0; i < timersList.size(); i++) {
 
-            for (int i = 0; i < timersList.size(); i++) {
+                    itemsNames[i] = timersList.get(i).toString();
 
-                itemsNames[i] = timersList.get(i).toString();
+                }
 
             }
 
+            if (timersList.size() == 0) {
+
+                StyleableToast.makeText(getContext(), "No Timers, let's go make some!" + "\n"+"Press the + to make a new timer.", Toast.LENGTH_LONG, R.style.mytoast).show();
+
+            }
         }
-
-        if (timersList == null) {
-
-            Timers timer1 = new Timers("No Timers", "0", "0", "0", "0", 0, "0", "0", "0", "0", "0");
-
-            // add them
-            db.addTimer(timer1);
-
+        catch (Exception e) {
+            StyleableToast.makeText(getContext(), "Error, please try again.", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            Log.e("APP", "exception", e);
         }
-
 
 
 
@@ -161,8 +150,6 @@ public class TimersFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_timers, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.listings_view);
 
-
-            //mRecyclerView = (RecyclerView) findViewById(R.id.listings_view);
 
         CustomItemClickListener listener = new CustomItemClickListener() {
             @Override
@@ -185,62 +172,28 @@ public class TimersFragment extends Fragment {
             }
 
 
-
         };
 
         // Initialize the Timers adapter.
-        mAdapter = new TimersAdapter(getActivity(), R.layout.timer_row, timersList, listener);
-
-        // Initialize ItemAnimator, LayoutManager and ItemDecorators
-
+        mAdapter = new TimersAdapter(getActivity(), R.layout.timers_row, timersList, listener);
 
         // For performance, tell OS RecyclerView won't change size
         mRecyclerView.setHasFixedSize(true);
 
-
-
         // Attach the adapter to RecyclerView
         mRecyclerView.setAdapter(mAdapter);
 
-
-        // Initialize ItemAnimator, LayoutManager and ItemDecorators
-
         // Sets the view to have two columns in a grid fashion.
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getActivity(),2);
-
-
-      /*
-        int verticalSpacing = 2;
-        VerticalSpaceItemDecorator itemDecorator =
-                new VerticalSpaceItemDecorator(verticalSpacing);
-        ShadowVerticalSpaceItemDecorator shadowItemDecorator =
-                new ShadowVerticalSpaceItemDecorator(getActivity(), R.drawable.drop_shadow);
-      */
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
 
         // Set the LayoutManager
         mRecyclerView.setLayoutManager(layoutManager);
 
-        // Set the ItemDecorators
-       // mRecyclerView.addItemDecoration(shadowItemDecorator);
-       // mRecyclerView.addItemDecoration(itemDecorator);
-
-
-
-
-        // Inflate the layout for this fragment
-        //return inflater.inflate(R.layout.fragment_timers, container, false);
-
-
-
-
-
-
         return rootView;
     }
 
+    // Start the timer when the play button has been pressed.
     public void playButton(final View v) {
-
-
 
         int id = timersList.get(p).getId();
 
@@ -249,13 +202,17 @@ public class TimersFragment extends Fragment {
         i.putExtra("id", id);
         getActivity().startActivityForResult(i, 3);
 
-
     }
 
+    /**************************************************************************************
+     * Title: Popup Menu source code
+     * Author: Bill Phillips, Chris Stewart, Brian Hardy and Kristin Marsicano
+     * Date: October 2016
+     * Availability: Android Programming: The Big Nerd Ranch Guide (2nd Edition)
+     *
+     ***************************************************************************************/
 
-
-
-
+    // Show the menu when the three dots button has been pressed.
     public void showMenu(final View v) {
 
         // create our sqlite helper class
@@ -329,8 +286,6 @@ public class TimersFragment extends Fragment {
     }// End of showMenu
 
 
-
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -365,14 +320,9 @@ public class TimersFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+
         void onFragmentInteraction(Uri uri);
     }
-
-
-
-
-
 
 
 }// End of class.
@@ -395,3 +345,18 @@ public class TimersFragment extends Fragment {
         SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(databaseFile,"secret",null);
 
     }*/
+
+          /*
+        int verticalSpacing = 2;
+        VerticalSpaceItemDecorator itemDecorator =
+                new VerticalSpaceItemDecorator(verticalSpacing);
+        ShadowVerticalSpaceItemDecorator shadowItemDecorator =
+                new ShadowVerticalSpaceItemDecorator(getActivity(), R.drawable.drop_shadow);
+      */
+
+// Set the ItemDecorators
+// mRecyclerView.addItemDecoration(shadowItemDecorator);
+// mRecyclerView.addItemDecoration(itemDecorator);
+
+// Inflate the layout for this fragment
+//return inflater.inflate(R.layout.fragment_timers, container, false);

@@ -377,5 +377,12 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         return user;
     }
 
+    public void deleteOneUser(int UId) {
+        // Get reference to writable DB
+        SQLiteDatabase db = this.getWritableDatabase("secret");
+        db.delete(USER_TABLE, "UId = ?", new String[] { String.valueOf(UId) });
+        db.close();
+    }
+
 
 }// End of class.

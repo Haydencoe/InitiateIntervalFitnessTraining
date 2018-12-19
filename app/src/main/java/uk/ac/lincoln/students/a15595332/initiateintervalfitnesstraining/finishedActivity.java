@@ -294,9 +294,6 @@ public class finishedActivity extends AppCompatActivity {
 
 
 
-
-
-
                 } else {
                     // The toggle is disabled
                 }
@@ -361,8 +358,6 @@ public class finishedActivity extends AppCompatActivity {
     public void User(String dateOfBirth, String fullName, String nickname) {
         // ...
     }
-
-
 
 
     public void saveWorkoutButton(View v) {

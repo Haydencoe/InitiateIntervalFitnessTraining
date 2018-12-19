@@ -266,6 +266,7 @@ public class JournalFragment extends Fragment {
 
 
                                             //firebase.child(id).removeValue();
+
                                             // delete from the displayed list.
                                             journalList.remove(p);
 

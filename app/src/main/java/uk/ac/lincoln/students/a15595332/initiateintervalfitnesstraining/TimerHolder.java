@@ -13,8 +13,7 @@ import android.widget.Toast;
 
 public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    //private final ImageView timerPicture;
-
+    // Text views
     private final TextView title;
     private final TextView prepare;
     private final TextView workout;
@@ -31,11 +30,6 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
     private final ImageButton playButton;
 
     private Timers timers;
-
-
-
-
-
     private Context context;
 
     public TimerHolder(Context context, View itemView, CustomItemClickListener listener) {
@@ -47,23 +41,22 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
 
         // Set up the UI widgets of the holder
        // this.timerPicture = (ImageView) itemView.findViewById(R.id.imageView_timerPicture);
-        this.title = (TextView) itemView.findViewById(R.id.title_text);
-        this.prepare = (TextView) itemView.findViewById(R.id.prepare_text);
-        this.workout = (TextView) itemView.findViewById(R.id.workout_text);
-        this.rest = (TextView) itemView.findViewById(R.id.rest_text);
-        this.cycles = (TextView) itemView.findViewById(R.id.cycles_text);
-        this.sets = (TextView) itemView.findViewById(R.id.sets_text);
-        this.setRest = (TextView) itemView.findViewById(R.id.setrest_text);
-        this.coolDown = (TextView) itemView.findViewById(R.id.cooldown_text);
-        this.totalTime = (TextView) itemView.findViewById(R.id.totalTime_Text);
+        this.title = (TextView) itemView.findViewById(R.id.title_text2);
+        this.prepare = (TextView) itemView.findViewById(R.id.prepare_text2);
+        this.workout = (TextView) itemView.findViewById(R.id.workout_text2);
+        this.rest = (TextView) itemView.findViewById(R.id.rest_text2);
+        this.cycles = (TextView) itemView.findViewById(R.id.cycles_text2);
+        this.sets = (TextView) itemView.findViewById(R.id.sets_text2);
+        this.setRest = (TextView) itemView.findViewById(R.id.setrest_text2);
+        this.coolDown = (TextView) itemView.findViewById(R.id.cooldown_text2);
+        this.totalTime = (TextView) itemView.findViewById(R.id.totalTime_Text2);
 
-        this.menuButton = (ImageButton) itemView.findViewById(R.id.menuButton);
-        this.playButton = (ImageButton) itemView.findViewById(R.id.playButton);
+        this.menuButton = (ImageButton) itemView.findViewById(R.id.menuButton2);
+        this.playButton = (ImageButton) itemView.findViewById(R.id.playButton2);
 
         mListener = listener;
 
         menuButton.setOnClickListener(this);
-
         playButton.setOnClickListener(this);
 
         // Set the "onClick" listener of the holder
@@ -74,8 +67,6 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
 
         //Bind the data to the ViewHolder
         this.timers = timers;
-
-        // this.timerPicture.setImageResource(timers.getmImageDrawable());
 
         this.title.setText(timers.getmTitle());
         this.prepare.setText(timers.getmPrepare());
@@ -92,41 +83,21 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
 
 
 
-
-
     @Override
     public void onClick(View v) {
 
-        /*
-        if (this.timers != null) {
 
-            Toast.makeText(this.context, "Clicked on " + this.timers.getmTitle(), Toast.LENGTH_SHORT ).show();
-
-        }
-*/
         switch (v.getId()) {
-            case R.id.menuButton:
+            case R.id.menuButton2:
                 mListener.onMenu(v, this.getLayoutPosition());
                 break;
-            case R.id.playButton:
+            case R.id.playButton2:
                 mListener.onClick(v, this.getLayoutPosition());
 
                 break;
             default:
                 break;
 
-
-
-/*
-        // 5. Handle the onClick event for the ViewHolder
-        if (this.timers != null) {
-
-            //Toast.makeText(this.context, "Clicked on " + this.timers.getmTitle(), Toast.LENGTH_SHORT ).show();
-
-            Toast.makeText(this.context, "Clicked on " + this.timers.getId(), Toast.LENGTH_SHORT ).show();
-
-        }
-  */
 
 
         }
@@ -136,3 +107,28 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
 
 
 }// End of class.
+
+
+
+/*
+        // 5. Handle the onClick event for the ViewHolder
+        if (this.timers != null) {
+
+        //Toast.makeText(this.context, "Clicked on " + this.timers.getmTitle(), Toast.LENGTH_SHORT ).show();
+
+        Toast.makeText(this.context, "Clicked on " + this.timers.getId(), Toast.LENGTH_SHORT ).show();
+
+        }
+        */
+
+/*
+        if (this.timers != null) {
+
+            Toast.makeText(this.context, "Clicked on " + this.timers.getmTitle(), Toast.LENGTH_SHORT ).show();
+
+        }
+*/
+
+// this.timerPicture.setImageResource(timers.getmImageDrawable());
+
+//private final ImageView timerPicture;

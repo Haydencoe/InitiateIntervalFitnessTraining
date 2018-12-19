@@ -132,6 +132,8 @@ public class NewTimer extends AppCompatActivity {
 
     public void doneButton(MenuItem item){
 
+
+
         Intent intent = new Intent();
 
         //Get workoutTitle string value.
@@ -182,6 +184,9 @@ public class NewTimer extends AppCompatActivity {
         intent.putExtra("sendPos", sendPos);
 
         setResult(RESULT_OK, intent);
+
+       // if (coolDownEdit + setRestEdit + )
+
         finish();
 
 

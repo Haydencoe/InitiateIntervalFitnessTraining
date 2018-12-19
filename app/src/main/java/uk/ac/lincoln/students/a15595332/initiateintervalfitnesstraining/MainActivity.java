@@ -39,6 +39,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.fitness.Fitness;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.muddzdev.styleabletoast.StyleableToast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
@@ -56,25 +57,13 @@ import es.dmoral.toasty.Toasty;
 public class MainActivity extends AppCompatActivity implements TimersFragment.OnFragmentInteractionListener, UserFragment.OnFragmentInteractionListener, JournalFragment.OnFragmentInteractionListener  {
 
     private SQLiteDatabaseHandler db;
-
     private TimersAdapter mAdapter;
-
-    public RecyclerView mRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private Context mContext;
-
-    private TextView mTextMessage;
-
-    public  int p;
-
     public  CustomItemClickListener mListener;
-
     public SQLiteDatabase database;
+    private FirebaseAuth mAuth;
+    public TextView mTitle;
 
-
-    private Timers timers;
-
-
+    // Ints
     public int prepare;
     public int workout;
     public int rest;
@@ -82,11 +71,14 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
     public int sets;
     public int setRest;
     public int coolDown;
+    public int p;  // Postion in cardview.
 
 
-    private FirebaseAuth mAuth;
-
-    public TextView mTitle;
+    public RecyclerView mRecyclerView;
+    private Timers timers;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private Context mContext;
+    private TextView mTextMessage;
 
 
     @Override
@@ -102,18 +94,21 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
             startActivity(new Intent(MainActivity.this, loginUserActivity.class));
         }
 
-        //updateUI(currentUser);
     }
 
-
-
-    //public  MenuInflater inflater;
 
     @Override
     public void onFragmentInteraction(Uri uri){
 
     }
 
+    /**************************************************************************************
+     * Title: Bottom Navigation Bar source code
+     * Author: Ravi Tamada
+     * Date: DECEMBER 29, 2017
+     * Availability: https://www.androidhive.info/2017/12/android-working-with-bottom-navigation/
+     *
+    ***************************************************************************************/
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -168,8 +163,8 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
         // Prevent orientation layout change.
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        // Grab current user.
         mAuth = FirebaseAuth.getInstance();
-
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
 
@@ -187,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
         // Load Libraries for SQLCipher.
         SQLiteDatabase.loadLibs(this);
 
-
+        // Set the main fragment to load on start
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.frame_layout, TimersFragment.newInstance("A","B"));
         transaction.commit();
@@ -195,6 +190,13 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        /**************************************************************************************
+         * Title: Tool Bar source code
+         * Author: Unknown
+         * Date: Unknown
+         * Availability: https://guides.codepath.com/android/Using-the-App-Toolbar
+         *
+         ***************************************************************************************/
 
         // Find the toolbar view inside the activity layout
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -207,27 +209,12 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         // Get access to the custom title view
 
+        // Setting custom tool bar title.
         mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
         mTitle.setText("Initiate Interval");
 
 
-
-
-
-        //InitializeSQLCipher();
     }
-
-
-    /*
-    private void InitializeSQLCipher() {
-
-        File databaseFile = getDatabasePath("TimersDB");
-        databaseFile.mkdirs();
-        databaseFile.delete();
-        database = SQLiteDatabase.openOrCreateDatabase(databaseFile, "secret", null);
-
-    }*/
-
 
 
 
@@ -235,9 +222,6 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.my_menu, menu);
-
-
-
 
         return true;
     }
@@ -254,9 +238,19 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
 
 
+
+    /**************************************************************************************
+     * Title: Activity Result source code
+     * Author: Bill Phillips, Chris Stewart, Brian Hardy and Kristin Marsicano
+     * Date: October 2016
+     * Availability: Android Programming: The Big Nerd Ranch Guide (2nd Edition)
+     *
+     ***************************************************************************************/
+
     // Data returned when the done button is pressed in the new timer activity.
    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-       if (requestCode == 1) {
+        // When a new timer has been created.
+        if (requestCode == 1) {
            if (resultCode == RESULT_OK) {
 
                String workoutTitleValue = data.getStringExtra("workoutTitleValue");
@@ -268,6 +262,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                String setRestValue = data.getStringExtra("setRestValue");
                String coolDownVaue = data.getStringExtra("coolDownValue");
 
+               // Exception handling for the conversion of Strings to ints.
                try {
                    prepare = Integer.parseInt(prepareValue);
                    workout = Integer.parseInt(workoutTimeValue);
@@ -280,36 +275,29 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                }
 
                catch (Exception e) {
+                   StyleableToast.makeText(MainActivity.this, "Error, please try again.", Toast.LENGTH_LONG, R.style.warningtoast).show();
                    Log.e("APP", "exception", e);
                }
 
-
+               // Total workout time calculations.
                int total = prepare + ((((workout+rest)*cycles)+setRest)*sets) + coolDown;
 
                int minutes = (total % 3600) / 60;
                int seconds = total % 60;
 
-              String totalTimeValue = String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
-
+               String totalTimeValue = String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
 
                double minDec = minutes + (seconds / 60.00);
-
-
                double calories = minDec*15.00;
-
 
                int roundedCalories = (int) Math.rint(calories);
 
                String caloriesBurntValue = String.valueOf(roundedCalories);
 
-
-               // Add new timer to the list of timers
-               // timersList.add(new Timers(workoutTitleValue , prepareValue, workoutTimeValue, "20", "3"));
-
-
                // create our sqlite helper class
                db = new SQLiteDatabaseHandler(this);
-               // create new timer
+
+               // create new timer from returned data.
                Timers timer1 = new Timers(workoutTitleValue, prepareValue, workoutTimeValue, restValue, cyclesValue, 0, setsValue, setRestValue, coolDownVaue, totalTimeValue, caloriesBurntValue );
 
                // add them
@@ -319,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                List<Timers> timersList = db.allTimers();
 
                // Initialize the Timers adapter.
-               mAdapter = new TimersAdapter(this, R.layout.timer_row, timersList, mListener);
+               mAdapter = new TimersAdapter(this, R.layout.timers_row, timersList, mListener);
 
 
                // Insert the new timer at the end of the list into the recycler view.
@@ -338,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
            }// End of if resultCode.
        }// End of if requestCode.
 
-
+       // When a timer has been updated.
        if (requestCode == 2) {
            if (resultCode == RESULT_OK) {
 
@@ -351,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                String setRestValue = data.getStringExtra("setRestValue");
                String coolDownVaue = data.getStringExtra("coolDownValue");
 
-
+               // Exception handling for the conversion of Strings to ints.
                try {
                    prepare = Integer.parseInt(prepareValue);
                    workout = Integer.parseInt(workoutTimeValue);
@@ -364,18 +352,18 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                }
 
                catch (Exception e) {
+                   StyleableToast.makeText(MainActivity.this, "Error, please try again.", Toast.LENGTH_LONG, R.style.warningtoast).show();
                    Log.e("APP", "exception", e);
                }
 
+               // Recalculate the workout total time.
                int total = prepare + ((((workout+rest)*cycles)+setRest)*sets) + coolDown;
-
                int minutes = (total % 3600) / 60;
                int seconds = total % 60;
 
                String totalTimeValue = String.format(Locale.ENGLISH, "%02d:%02d", minutes, seconds);
 
                // Minutes in decimal format.
-
                double minDec = 0;
 
                if (minutes > 0) {
@@ -393,8 +381,8 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
                int id = data.getIntExtra("sendId", 0);
                int pos = data.getIntExtra("sendPos", 0);
+
                // Add new timer to the list of timers
-               // timersList.add(new Timers(workoutTitleValue , prepareValue, workoutTimeValue, "20", "3"));
 
                if (id != 0) {
 
@@ -423,20 +411,13 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
 
        }
 
-
+        // Start time of workout.
        if (requestCode == 3) {
            if (resultCode == RESULT_OK) {
 
-
-
                int id = data.getIntExtra("sendId", 0);
-
                int calTimeStart = data.getIntExtra("sendCalTime",0);
                int calTimeMinStart = data.getIntExtra("sendCalTimeMin",0);
-
-
-
-               //Toast toast =  Toast.makeText(this, "Code 3" +id, Toast.LENGTH_SHORT); toast.show();
 
                Intent intent = new Intent(this, finishedActivity.class);
                intent.putExtra("sendId", id);
@@ -446,31 +427,24 @@ public class MainActivity extends AppCompatActivity implements TimersFragment.On
                startActivityForResult(intent, 4);
 
 
-
            }// End of result ok.
 
        }// End of if 3
 
+       // When permission for Google fit has been given.
        if (requestCode == 1234) {
 
            if (resultCode == RESULT_OK) {
                Log.d("Main Request Code", "1234");
 
-
+               // Calls method in User fragment.
                UserFragment fragment = (UserFragment) getSupportFragmentManager().findFragmentById(R.id.frame_layout);
                fragment.readHistoryData();
-
 
            }
        }
 
    }// end of activity result method.
-
-
-    public void signOut(Context context) {
-
-        Fitness.getConfigClient(this, GoogleSignIn.getLastSignedInAccount(context)).disableFit();
-    }
 
 
 }// End of class.
@@ -595,5 +569,15 @@ import android.support.v4.app.FragmentTransaction;
             }
         });
         popup.show();
+
+    }*/
+
+ /*
+    private void InitializeSQLCipher() {
+
+        File databaseFile = getDatabasePath("TimersDB");
+        databaseFile.mkdirs();
+        databaseFile.delete();
+        database = SQLiteDatabase.openOrCreateDatabase(databaseFile, "secret", null);
 
     }*/

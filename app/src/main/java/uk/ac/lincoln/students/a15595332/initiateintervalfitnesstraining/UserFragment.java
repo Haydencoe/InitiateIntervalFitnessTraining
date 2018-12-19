@@ -159,7 +159,6 @@ public class UserFragment extends Fragment {
     public TextView heightTV;
     public TextView weightTV;
 
-
     public String setWeight;
     public String setHeight;
     public String setCalories;
@@ -172,11 +171,9 @@ public class UserFragment extends Fragment {
 
 
 
-
          rootView = inflater.inflate(R.layout.fragment_user, container, false);
 
 
-       // final TextView text1 = (TextView) rootView.findViewById(R.id.heightWeightTV);
 
         heightTV  = (TextView) rootView.findViewById(R.id.heightTV);
         weightTV  = (TextView) rootView.findViewById(R.id.weightTV);
@@ -368,10 +365,27 @@ public class UserFragment extends Fragment {
             public void onClick(View v) {
                 // do sign out
 
+
+
+                // Exception handing in case logout fails.
+                try {
+
+                // log out and disable Google fit
                 Fitness.getConfigClient(getActivity(), GoogleSignIn.getLastSignedInAccount(getContext())).disableFit();
 
-                ((MainActivity)getActivity()).signOut(getContext());
+                // create our sqlLite helper class
+                db = new SQLiteDatabaseHandler(getContext());
+                // Delete the user's stored data after they have chosen to log out from Google fit.
+                db.deleteOneUser(1);
 
+                }
+                catch (Exception e) {
+                    StyleableToast.makeText(getContext(), "Error logging out, please try again later.", Toast.LENGTH_LONG, R.style.warningtoast).show();
+                    Log.e("APP", "exception", e);
+                }
+
+
+                // Reset the ui
                 ImageButton button = (ImageButton) rootView.findViewById(R.id.googleFitButton);
                 TextView dataLabel = (TextView) rootView.findViewById(R.id.dataTextView);
                 Button signOut = (Button) rootView.findViewById(R.id.signOutButton);
@@ -514,6 +528,7 @@ public class UserFragment extends Fragment {
                         // bucketing by "sessions", which would need to be defined in code.
                        // .bucketByTime(1, TimeUnit.DAYS)
                         .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
+
                         .build();
         // [END build_read_data_request]
 
@@ -610,8 +625,23 @@ public class UserFragment extends Fragment {
         }
 
 
-        heightText = "Height: " + setHeight;
-        weightText = "Weight: " + setWeight;
+        if (setHeight == null) {
+
+            setHeight = "No height data found";
+
+        }
+
+        if (setWeight == null) {
+
+            setWeight = "No weight data found";
+
+        }
+
+
+
+            heightText = "Height: " + setHeight;
+            weightText = "Weight: " + setWeight;
+
 
 
         heightTV.setVisibility(View.VISIBLE);
