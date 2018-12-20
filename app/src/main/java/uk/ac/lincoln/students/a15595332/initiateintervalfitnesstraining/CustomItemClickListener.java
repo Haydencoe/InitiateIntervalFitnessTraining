@@ -4,9 +4,5 @@ import android.view.View;
 
 public interface CustomItemClickListener {
     public void onClick(View view, int position);
-
     public void onMenu(View view, int position);
-
-
-
 }

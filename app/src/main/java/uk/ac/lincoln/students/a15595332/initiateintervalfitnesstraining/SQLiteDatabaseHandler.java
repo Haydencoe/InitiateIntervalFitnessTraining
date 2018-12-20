@@ -58,6 +58,25 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
 
     private static final String[] UCOLUMNS = { KEY_U_ID, KEY_U_HEIGHT, KEY_U_WEIGHT };
 
+
+
+    /**************************************************************************************
+     * Title: SQLite Implementation
+     * Author: Bill Phillips, Chris Stewart, Brian Hardy and Kristin Marsicano
+     * Date: October 2016
+     * Availability: Android Programming: The Big Nerd Ranch Guide (2nd Edition)
+     *
+     ***************************************************************************************/
+
+    /**************************************************************************************
+     * Title: SQLCipher Implementation
+     * Author: Unknown
+     * Date: Unknown
+     * Availability:   https://www.zetetic.net/sqlcipher/open-source/
+     *
+     ***************************************************************************************/
+
+
     public SQLiteDatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
 
@@ -72,8 +91,6 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, " + "title TEXT, "
                 + "prepare TEXT, " + "workout TEXT, " + "rest TEXT, "
                 + "cycles TEXT, " + "sets TEXT, " + "setRest TEXT, " + "coolDown TEXT, " + "totalTime TEXT, " + "caloriesBurnt TEXT  )";
-
-
 
         // Create the journal table.
         String CREATION_TABLE_J = "CREATE TABLE Journal ( "
@@ -102,9 +119,6 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
 
         this.onCreate(db);
-
-
-
     }
 
     public void deleteOne(int id) {
@@ -233,32 +247,6 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public Journal getJournal(int jId) {
-        SQLiteDatabase db = this.getReadableDatabase("secret");
-        Cursor cursor = db.query(JOURNAL_TABLE, // a. table
-                JCOLUMNS, // b. column names
-                " jId = ?", // c. selections
-                new String[] { String.valueOf(jId) }, // d. selections args
-                null, // e. group by
-                null, // f. having
-                null, // g. order by
-                null); // h. limit
-
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        Journal journal = new Journal("", "", "", 0, "");
-        journal.setmJTitle(cursor.getString(1));
-        journal.setmJTotalTime(cursor.getString(2));
-        journal.setmJCalories(cursor.getString(3));
-        journal.setmPictureURL(cursor.getString(4));
-
-        cursor.close();
-        db.close();
-        return journal;
-    }
-
-
     public List<Journal> allJournal() {
 
         List<Journal> journals = new LinkedList<Journal>();
@@ -279,7 +267,6 @@ public class SQLiteDatabaseHandler extends SQLiteOpenHelper {
                 journals.add(journal);
             } while (cursor.moveToNext());
         }
-
 
         cursor.close();
         db.close();

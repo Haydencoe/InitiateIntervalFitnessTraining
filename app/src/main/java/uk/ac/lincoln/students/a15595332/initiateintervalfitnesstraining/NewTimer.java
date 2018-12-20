@@ -19,6 +19,7 @@ import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataType;
+import com.muddzdev.styleabletoast.StyleableToast;
 
 
 public class NewTimer extends AppCompatActivity {
@@ -69,7 +70,7 @@ public class NewTimer extends AppCompatActivity {
             sendId = id;
             sendPos = pos;
 
-            // Grab all the previous data entered.
+            // Grab all the previous data entered if updating.
             Timers timer = db.getTimer(id);
 
             EditText edit = (EditText) findViewById(R.id.workoutTitle);
@@ -98,18 +99,8 @@ public class NewTimer extends AppCompatActivity {
 
         }
 
-
-
-
-
     }
 
-
-    /*
-
-
-
-    */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -132,7 +123,7 @@ public class NewTimer extends AppCompatActivity {
 
     public void doneButton(MenuItem item){
 
-
+        boolean correct = true;
 
         Intent intent = new Intent();
 
@@ -144,37 +135,73 @@ public class NewTimer extends AppCompatActivity {
         //Get prepareTime string value.
         EditText prepareEdit = (EditText)findViewById(R.id.prepareInput);
         String prepare = prepareEdit.getText().toString();
+        // Prevents users entering a null value
+        if (prepare.length() == 0 || prepare.equals("0"))
+        {
+            StyleableToast.makeText(this, "Please enter a value for the Prepare time", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            correct = false;
+        }
         intent.putExtra("prepareValue", prepare);
 
         //Get workoutTime string value.
         EditText workoutTimeEdit = (EditText)findViewById(R.id.workoutInput);
         String workoutTime = workoutTimeEdit.getText().toString();
+        if (workoutTime.length() == 0 || workoutTime.equals("0"))
+        {
+            StyleableToast.makeText(this, "Please enter a value for the Workout time", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            correct = false;
+        }
         intent.putExtra("workoutTimeValue", workoutTime);
 
         //Get restTime string value.
         EditText restEdit = (EditText)findViewById(R.id.restInput);
         String rest = restEdit.getText().toString();
+        if (rest.length() == 0 || rest.equals("0"))
+        {
+            StyleableToast.makeText(this, "Please enter a value for the Rest time", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            correct = false;
+        }
         intent.putExtra("restValue", rest);
 
         //Get workoutTime string value.
         EditText cyclesEdit = (EditText)findViewById(R.id.cyclesInput);
         String cycles = cyclesEdit.getText().toString();
+        if (cycles.length() == 0 || cycles.equals("0"))
+        {
+            StyleableToast.makeText(this, "Please enter a value for the amount of Cycles", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            correct = false;
+        }
         intent.putExtra("cyclesValue", cycles);
 
         //Get set amount string value.
         EditText setsEdit = (EditText)findViewById(R.id.setsInput);
         String sets = setsEdit.getText().toString();
+        if (sets.length() == 0 || sets.equals("0"))
+        {
+            StyleableToast.makeText(this, "Please enter a value for the amount of Sets", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            correct = false;
+        }
         intent.putExtra("setsValue", sets);
 
 
         //Get set rest amount string value.
         EditText setRestEdit = (EditText)findViewById(R.id.restSetsInput);
         String setRest = setRestEdit.getText().toString();
+        if (setRest.length() == 0 || setRest.equals("0"))
+        {
+            StyleableToast.makeText(this, "Please enter a value for the Set Rest time", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            correct = false;
+        }
         intent.putExtra("setRestValue", setRest);
 
         //Get set rest amount string value.
         EditText coolDownEdit = (EditText)findViewById(R.id.coolDownInput);
         String coolDown = coolDownEdit.getText().toString();
+        if (coolDown.length() == 0 || coolDown.equals("0"))
+        {
+            StyleableToast.makeText(this, "Please enter a value for the Cool Down time", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            correct = false;
+        }
         intent.putExtra("coolDownValue", coolDown);
 
 
@@ -183,17 +210,13 @@ public class NewTimer extends AppCompatActivity {
 
         intent.putExtra("sendPos", sendPos);
 
-        setResult(RESULT_OK, intent);
 
-       // if (coolDownEdit + setRestEdit + )
-
-        finish();
-
+        if (correct) {
+            setResult(RESULT_OK, intent);
+            finish();
+        }
 
     }
-
-
-
 
 
 }// End of class

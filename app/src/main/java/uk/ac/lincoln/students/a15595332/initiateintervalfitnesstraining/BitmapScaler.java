@@ -2,6 +2,8 @@ package uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining;
 
 import android.graphics.Bitmap;
 
+//https://gist.github.com/nesquena/3885707fd3773c09f1bb
+
 public class BitmapScaler
 {
     // scale and keep aspect ratio

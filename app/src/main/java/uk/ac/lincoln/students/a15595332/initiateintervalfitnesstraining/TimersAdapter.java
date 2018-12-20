@@ -24,9 +24,6 @@ public class TimersAdapter extends RecyclerView.Adapter<TimerHolder> {
 
     private CustomItemClickListener mListener;
 
-
-
-
     public TimersAdapter(Context context, int itemResource, List<Timers> timers, CustomItemClickListener listener) {
 
         // Initialise the adapter
@@ -34,14 +31,12 @@ public class TimersAdapter extends RecyclerView.Adapter<TimerHolder> {
         this.context = context;
         this.itemResource = itemResource;
 
-
         mListener = listener;
     }
 
     // Override the onCreateViewHolder method
     @Override
     public TimerHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
 
         // Inflate the view and return the new ViewHolder
         View view = LayoutInflater.from(parent.getContext())
@@ -66,47 +61,5 @@ public class TimersAdapter extends RecyclerView.Adapter<TimerHolder> {
         return this.timers.size();
     }
 
-
-
-
 }
-
-
-/*
-
-public class TimersAdapter extends ArrayAdapter<Timers> {
-
-        private Context mContext;
-        private List<Timers> timersList = new ArrayList<>();
-
-        public TimersAdapter(@NonNull Context context, ArrayList<Timers> list) {
-            super(context, 0, list);
-            mContext = context;
-            timersList = list;
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            View listItem = convertView;
-            if (listItem == null)
-                listItem = LayoutInflater.from(mContext).inflate(R.layout.timer_row, parent, false);
-
-            Timers currentTimers = timersList.get(position);
-
-            ImageView image = (ImageView) listItem.findViewById(R.id.imageView_poster);
-            image.setImageResource(currentTimers.getmImageDrawable());
-
-            TextView name = (TextView) listItem.findViewById(R.id.textView_name);
-            name.setText(currentTimers.getmName());
-
-            TextView release = (TextView) listItem.findViewById(R.id.textView_release);
-            release.setText(currentTimers.getmRelease());
-
-            return listItem;
-        }
-    }
-
-
-*/
 

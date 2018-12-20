@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.muddzdev.styleabletoast.StyleableToast;
 
 import java.io.File;
@@ -56,7 +58,7 @@ public class TimersFragment extends Fragment {
     public int p; // Position
 
 
-
+    private FirebaseAuth mAuth;
     public SQLiteDatabase mDatabase;
     private RecyclerView.LayoutManager mLayoutManager;
     private Context mContext;
@@ -89,7 +91,7 @@ public class TimersFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Load Libraries for SQLCipher.
+        // Load Libraries into the program for SQLCipher.
         SQLiteDatabase.loadLibs(getActivity());
 
         if (getArguments() != null) {
@@ -112,6 +114,9 @@ public class TimersFragment extends Fragment {
 
         // **** Layout for the timer's list *************************************************************
 
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
         // create our sqlite helper class
         db = new SQLiteDatabaseHandler(getActivity());
 
@@ -132,9 +137,9 @@ public class TimersFragment extends Fragment {
 
             }
 
-            if (timersList.size() == 0) {
+            if (timersList.size() == 0 && currentUser != null) {
 
-                StyleableToast.makeText(getContext(), "No Timers, let's go make some!" + "\n"+"Press the + to make a new timer.", Toast.LENGTH_LONG, R.style.mytoast).show();
+                StyleableToast.makeText(getContext(), "No Timers, let's go make some!" + "\n"+"Press the + to make a new timer.", Toast.LENGTH_SHORT, R.style.mytoast).show();
 
             }
         }
@@ -183,7 +188,7 @@ public class TimersFragment extends Fragment {
         // Attach the adapter to RecyclerView
         mRecyclerView.setAdapter(mAdapter);
 
-        // Sets the view to have two columns in a grid fashion.
+        // Sets the view to have a linear layout design.
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
 
         // Set the LayoutManager
@@ -327,36 +332,3 @@ public class TimersFragment extends Fragment {
 
 }// End of class.
 
-
-//ArrayList<Timers> timersList = new ArrayList<>();
-
-        /*
-        timersList.add(new Timers("Push ups" ,"10", "20", "10", "8"));
-        timersList.add(new Timers("Sit ups" , "12", "30", "15", "5"));
-        timersList.add(new Timers("Burpees" , "15", "45", "20", "3"));
-        */
-
-         /*
-    private void InitializeSQLCipher() {
-
-        File databaseFile = mContext.getDatabasePath("TimersDB");
-        databaseFile.mkdirs();
-        databaseFile.delete();
-        SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(databaseFile,"secret",null);
-
-    }*/
-
-          /*
-        int verticalSpacing = 2;
-        VerticalSpaceItemDecorator itemDecorator =
-                new VerticalSpaceItemDecorator(verticalSpacing);
-        ShadowVerticalSpaceItemDecorator shadowItemDecorator =
-                new ShadowVerticalSpaceItemDecorator(getActivity(), R.drawable.drop_shadow);
-      */
-
-// Set the ItemDecorators
-// mRecyclerView.addItemDecoration(shadowItemDecorator);
-// mRecyclerView.addItemDecoration(itemDecorator);
-
-// Inflate the layout for this fragment
-//return inflater.inflate(R.layout.fragment_timers, container, false);

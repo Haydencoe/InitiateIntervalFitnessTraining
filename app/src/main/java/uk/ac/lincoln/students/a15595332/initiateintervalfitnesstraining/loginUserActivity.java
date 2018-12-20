@@ -38,12 +38,20 @@ public class loginUserActivity extends AppCompatActivity {
 
     private static final String TAG = "loginUserActivity";
 
+
+    /**************************************************************************************
+     * Title: Google sign in and authentication
+     * Author: Google
+     * Date: Unknown
+     * Availability: https://developers.google.com/identity/sign-in/android/
+     *
+     ***************************************************************************************/
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_user);
-
-
 
         ImageView back = (ImageView) findViewById(R.id.back_image);
 
@@ -90,14 +98,10 @@ public class loginUserActivity extends AppCompatActivity {
 
     }
 
-
-
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -149,10 +153,8 @@ public class loginUserActivity extends AppCompatActivity {
                 });
     }
 
-
     private void hideProgressDialog() {
         pDialog.dismiss();
     }
-
 
 }

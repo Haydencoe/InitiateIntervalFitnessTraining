@@ -13,11 +13,7 @@ public class JournalsAdapter extends RecyclerView.Adapter<JournalsHolder> {
     public final List<Journal> journal;
     private Context context;
     private int itemResource;
-
     private JCustomItemClickListener mListener;
-
-
-
 
     public JournalsAdapter(Context context, int itemResource, List<Journal> journal, JCustomItemClickListener listener) {
 
@@ -26,14 +22,12 @@ public class JournalsAdapter extends RecyclerView.Adapter<JournalsHolder> {
         this.context = context;
         this.itemResource = itemResource;
 
-
         mListener = listener;
     }
 
     // Override the onCreateViewHolder method
     @Override
     public JournalsHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
 
         // Inflate the view and return the new ViewHolder
         View view = LayoutInflater.from(parent.getContext())
@@ -57,8 +51,5 @@ public class JournalsAdapter extends RecyclerView.Adapter<JournalsHolder> {
 
         return this.journal.size();
     }
-
-
-
 
 }// End of class.

@@ -20,6 +20,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.muddzdev.styleabletoast.StyleableToast;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import java.text.SimpleDateFormat;
@@ -33,7 +35,10 @@ public class PlayingActivity extends AppCompatActivity {
 
     private SQLiteDatabaseHandler db;
 
+    // Strings
     public String title;
+
+    // ints
     public int prepare;
     public int workout;
     public int rest;
@@ -41,28 +46,34 @@ public class PlayingActivity extends AppCompatActivity {
     public int sets;
     public int setRest;
     public int coolDown;
-
     public int cycleCounter;
     public int setCounter;
     public int id;
-
     public int calTime;
     public int calTimeMin;
 
+    // booleans
+    public Boolean localSound;
 
     public CountDownTimer countDownTimer;
 
     public MediaPlayer mp;
     public MediaPlayer mp3;
 
-    public Boolean localSound;
-
     public SoundPool soundPool;
     int bellSoundId;
     int bell3SoundId;
 
-
     public ImageButton soundButton;
+
+    /**************************************************************************************
+     * Title: Count Down Timer
+     * Author: Google
+     * Date: June 2018
+     * Availability: https://developer.android.com/reference/android/os/CountDownTimer
+     *
+     ***************************************************************************************/
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +114,8 @@ public class PlayingActivity extends AppCompatActivity {
 
         }
         catch (Exception e) {
-                Log.e("APP", "exception", e);
+            StyleableToast.makeText(PlayingActivity.this, "Error, please try again.", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            Log.e("APP", "exception", e);
             }
 
 
@@ -141,6 +153,7 @@ public class PlayingActivity extends AppCompatActivity {
 
         }
         catch (Exception e) {
+            StyleableToast.makeText(PlayingActivity.this, "Error, please try again.", Toast.LENGTH_LONG, R.style.warningtoast).show();
             Log.e("APP", "exception", e);
         }
 
@@ -153,25 +166,19 @@ public class PlayingActivity extends AppCompatActivity {
 
         //Setting the title of the workout.
         TextView titleText = (TextView) findViewById(R.id.titleText);
-
         titleText.setText(title);
-
 
         // Setting the section of the workout.
         TextView section = (TextView) findViewById(R.id.sectionText);
 
-
         TextView cycleText = (TextView) findViewById(R.id.cycleText);
         cycleText.setText(String.format(Locale.ENGLISH, "C: %d/%d", cycleCounter, cycles));
-
 
         TextView setTextNo = (TextView) findViewById(R.id.setTextNo);
         setTextNo.setText(String.format(Locale.ENGLISH, "S: %d/%d", setCounter, sets));
 
-
         SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0); // 0 - for private mode
         localSound =  pref.getBoolean("key_sound", true); // getting boolean
-
 
         soundButton = (ImageButton) findViewById(R.id.soundImageButton);
 
@@ -220,12 +227,10 @@ public class PlayingActivity extends AppCompatActivity {
 
                 if (m == 0 & s <= 3) {
                     // Play bell sound for countdown warning of last 3 seconds.
-
                     if (localSound) {
                         soundPool.play(bellSoundId, 1, 1, 1, 0, 1);
                     }
                 }
-
             }
 
             public void onFinish() {
@@ -241,10 +246,7 @@ public class PlayingActivity extends AppCompatActivity {
                 }
 
                 playWorkout(); // finish current activity
-
-
             }
-
 
         }.start();
 
@@ -284,11 +286,9 @@ public class PlayingActivity extends AppCompatActivity {
                     }
                 }
 
-
             }
 
             public void onFinish() {
-
 
                 //Change Timer text
                 timeText.setText(getString(R.string.timer));
@@ -302,12 +302,9 @@ public class PlayingActivity extends AppCompatActivity {
 
                 playRest(); // finish current activity
 
-
             }
 
-
         }.start();
-
 
     }// End of method.
 
@@ -322,12 +319,10 @@ public class PlayingActivity extends AppCompatActivity {
         screen.setBackgroundColor(getColor(R.color.rest_colour));
         //startTimer(rest * 1000);WWHHHYYYYY!!
 
-
         countDownTimer = new CountDownTimer((rest) * 1000, 1000) {
 
             //Setting the timer part of the workout.
             TextView timeText = (TextView) findViewById(R.id.timeText);
-
 
             public void onTick(long millisUntilFinished) {
 
@@ -335,7 +330,6 @@ public class PlayingActivity extends AppCompatActivity {
                 long m = (int) ((millisUntilFinished / (1000 * 60)) % 60);
 
                 timeText.setText(String.format(Locale.ENGLISH, "%02d:%02d", m, s));
-
 
                 if (m == 0 & s <= 3) {
 
@@ -346,11 +340,9 @@ public class PlayingActivity extends AppCompatActivity {
 
                 }
 
-
             }
 
             public void onFinish() {
-
 
                 // Change Timer text 00:00
                 timeText.setText(getString(R.string.timer));
@@ -361,8 +353,6 @@ public class PlayingActivity extends AppCompatActivity {
                 }
 
                 cycleCounter++;
-
-
                 countDownTimer.cancel();
 
                 // Cycle count reached.
@@ -386,12 +376,9 @@ public class PlayingActivity extends AppCompatActivity {
 
                 }
 
-
             }
 
-
         }.start();
-
 
     }
 
@@ -436,32 +423,22 @@ public class PlayingActivity extends AppCompatActivity {
                     // Play 3 bell, end of round sound.
                     soundPool.play(bell3SoundId, 1, 1, 1, 0, 1);
                 }
-
                 // Increase the set count
                 setCounter++;
-
                 // Reset the cycle counter at the end of a set.
                 cycleCounter = 1;
-
-
                 // Set count has been reached
-
                 if (setCounter > sets) {
 
                     playCooldown();
-
                 }
 
 
                 // More sets left to go.
-
                 if (setCounter <= sets) {
-
-
                     // Update cycle counter text view.
                     TextView cycleText = (TextView) findViewById(R.id.cycleText);
                     cycleText.setText(String.format(Locale.ENGLISH, "C: %d/%d", cycleCounter, cycles));
-
 
                     // Update set counter text view.
                     TextView setText = (TextView) findViewById(R.id.setTextNo);
@@ -471,7 +448,6 @@ public class PlayingActivity extends AppCompatActivity {
                     playWorkout();
 
                 }
-
 
             }
         }.start();
@@ -523,33 +499,11 @@ public class PlayingActivity extends AppCompatActivity {
                 // Start the end of the workout.
                 end();
 
-                /*
-                // Play 3 bell end of round sound.
-                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), R.raw.bellx3);
-                mp.start();
-
-
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    public void onCompletion(MediaPlayer mp) {
-
-                        mp.release();
-
-
-
-
-                    }
-                });// end of mp listener
-
-*/
-
             }
-
 
         }.start();
 
-
     }
-
 
     public void end() {
 
@@ -558,11 +512,9 @@ public class PlayingActivity extends AppCompatActivity {
         View screen = findViewById(R.id.screen);
         screen.setBackgroundColor(getColor(R.color.gold_colour));
 
-
         new CountDownTimer(1000, 1000) {
 
             public void onTick(long millisUntilFinished) {
-
 
             }
 
@@ -578,13 +530,10 @@ public class PlayingActivity extends AppCompatActivity {
 
                 finish();
 
-
             }
         }.start();
 
-
     }
-
 
     public void cancelButton(View v) {
 
@@ -595,23 +544,18 @@ public class PlayingActivity extends AppCompatActivity {
 
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with cancel
-
                         countDownTimer.cancel();
-
                         finish();
-
                     }
                 })
                 .setNegativeButton("Carry On", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // do nothing
-
                     }
 
                 })// End of set negative button
 
                 .setIcon(android.R.drawable.ic_dialog_alert)
-
                 .show();
 
     }
@@ -639,7 +583,7 @@ public class PlayingActivity extends AppCompatActivity {
 
     }
 
-
+// Androi's physical back button pressed.
     @Override
     public void onBackPressed() {
         // Harware back button press stuff here
@@ -647,16 +591,8 @@ public class PlayingActivity extends AppCompatActivity {
         // Cancel timer.
         countDownTimer.cancel();
 
-
-
         super.onBackPressed();
     }
 
 
 }
- /*
-                TextView cycleText = (TextView) findViewById(R.id.cycleText);
-                counter = 1;
-                cycleText.setText(String.format(Locale.ENGLISH, "%d/%d", counter, cycles));
-                playWorkout();
-                */

@@ -40,7 +40,6 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
         this.context = context;
 
         // Set up the UI widgets of the holder
-       // this.timerPicture = (ImageView) itemView.findViewById(R.id.imageView_timerPicture);
         this.title = (TextView) itemView.findViewById(R.id.title_text2);
         this.prepare = (TextView) itemView.findViewById(R.id.prepare_text2);
         this.workout = (TextView) itemView.findViewById(R.id.workout_text2);
@@ -80,12 +79,9 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
 
     }
 
-
-
-
+    // Menu items
     @Override
     public void onClick(View v) {
-
 
         switch (v.getId()) {
             case R.id.menuButton2:
@@ -98,37 +94,8 @@ public class TimerHolder extends RecyclerView.ViewHolder implements View.OnClick
             default:
                 break;
 
-
-
         }
-
 
     }
 
-
 }// End of class.
-
-
-
-/*
-        // 5. Handle the onClick event for the ViewHolder
-        if (this.timers != null) {
-
-        //Toast.makeText(this.context, "Clicked on " + this.timers.getmTitle(), Toast.LENGTH_SHORT ).show();
-
-        Toast.makeText(this.context, "Clicked on " + this.timers.getId(), Toast.LENGTH_SHORT ).show();
-
-        }
-        */
-
-/*
-        if (this.timers != null) {
-
-            Toast.makeText(this.context, "Clicked on " + this.timers.getmTitle(), Toast.LENGTH_SHORT ).show();
-
-        }
-*/
-
-// this.timerPicture.setImageResource(timers.getmImageDrawable());
-
-//private final ImageView timerPicture;

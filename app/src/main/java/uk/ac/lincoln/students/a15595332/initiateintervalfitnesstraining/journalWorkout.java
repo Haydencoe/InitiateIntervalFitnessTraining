@@ -14,11 +14,9 @@ public class journalWorkout implements Serializable {
         public String title;
         public String time;
         public String calories;
-
         public String pictureURL;
         // Default constructor required for calls to
         // DataSnapshot.getValue(User.class)
-
         journalWorkout() {}
 
         public journalWorkout(String title, String time, String calories, String journalId, String pictureURL) {
@@ -26,9 +24,7 @@ public class journalWorkout implements Serializable {
             this.title = title;
             this.time = time;
             this.calories = calories;
-
             this.journalId = journalId;
-
 
             this.pictureURL = pictureURL;
         }
@@ -39,26 +35,19 @@ public class journalWorkout implements Serializable {
     }
 
     public String getJournalTime() {
-
         return time;
     }
 
     public String getJournalCalories() {
-
         return calories;
-
     }
 
     public String getJournalId() {
-
         return journalId;
 
     }
 
-
     public String getPictureURL() {
-
-
             return pictureURL;
     }
 

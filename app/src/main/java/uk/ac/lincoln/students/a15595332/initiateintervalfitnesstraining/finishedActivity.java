@@ -88,44 +88,38 @@ import static android.Manifest.permission.WRITE_CALENDAR;
 public class finishedActivity extends AppCompatActivity {
 
     private SQLiteDatabaseHandler db;
-    public int id;
 
+    // Strings
     public String workoutTitleText;
     public String totalTimeText;
     public String caloriesBurntText;
     public String formattedDate;
-
-    public int calTimeStart;
-    public int calTimeMinStart;
-
-
     public String jtitle;
     public String uid;
     public String uname;
+    public String imageEncoded;
+
+    // ints
+    public int calTimeStart;
+    public int calTimeMinStart;
+    public int id;
+    public int caloriesBurntInt;
+
+    // booleans
+    public boolean saveDeviceFlag;
+    public boolean saveCloudFlag;
 
     private static final String TAG = "Tag";
     private GoogleApiClient mGoogleApiClient = null;
     private Session mSession;
-
-    public int caloriesBurntInt;
-
-    DatabaseReference rootRef,user,journalNode,userName, jnumber;
+    public DatabaseReference rootRef,user,journalNode,userName, jnumber;
+    private FirebaseAuth mAuth;
 
     public Calendar beginTime;
     public Calendar endTime;
 
-    private FirebaseAuth mAuth;
-
-
-    public boolean saveDeviceFlag;
-
-    public boolean saveCloudFlag;
-
-
     public Bitmap resizedBitmap;
     public Bitmap rawTakenImage;
-
-    public String imageEncoded;
 
 
     @Override
@@ -142,14 +136,7 @@ public class finishedActivity extends AppCompatActivity {
         calTimeStart = intent.getIntExtra("sendCalTime",1);
         calTimeMinStart = intent.getIntExtra("sendCalTimeMin",1);
 
-
         Calendar c = Calendar.getInstance();
-
-        //SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH);
-        //SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
-        //String  cal = df.format(c.getTime());
-
-
 
         //Get year
         SimpleDateFormat dfYear = new SimpleDateFormat("yyyy", Locale.ENGLISH);
@@ -159,84 +146,52 @@ public class finishedActivity extends AppCompatActivity {
         SimpleDateFormat dfTime = new SimpleDateFormat("HH", Locale.ENGLISH);
         SimpleDateFormat dfTimeMin = new SimpleDateFormat("mm", Locale.ENGLISH);
 
-
         String  calYear = dfYear.format(c.getTime());
         String  calMonth = dfMonth.format(c.getTime());
         String  calDayofMonth = dfDayofMonth.format(c.getTime());
-
         String  calTime = dfTime.format(c.getTime());
         String  calTimeMin = dfTimeMin.format(c.getTime());
 
-
-
-
-
+        // Local ints
         int intCalYear = 0;
-
-        try {
-            intCalYear = Integer.parseInt(calYear);
-        } catch (NumberFormatException nfe) {
-
-        }
-
         int intCalMonth = 0;
-
-        try {
-            intCalMonth = Integer.parseInt(calMonth);
-        } catch (NumberFormatException nfe) {
-
-        }
-
         int intCalDay = 0;
-
-        try {
-            intCalDay = Integer.parseInt(calDayofMonth);
-        } catch (NumberFormatException nfe) {
-
-        }
-
         int intCalTime = 0;
-
-        try {
-            intCalTime = Integer.parseInt(calTime);
-        } catch (NumberFormatException nfe) {
-
-        }
-
         int intCalTimeMin = 0;
 
+        // Exception handing in case the Strings can't be converted to ints.
         try {
+            intCalYear = Integer.parseInt(calYear);
+            intCalMonth = Integer.parseInt(calMonth);
+            intCalDay = Integer.parseInt(calDayofMonth);
+            intCalTime = Integer.parseInt(calTime);
             intCalTimeMin = Integer.parseInt(calTimeMin);
-        } catch (NumberFormatException nfe) {
-
         }
+
+        catch (Exception e) {
+                StyleableToast.makeText(finishedActivity.this, "Error, please try again.", Toast.LENGTH_LONG, R.style.warningtoast).show();
+                Log.e("APP", "exception", e);
+            }
 
         // This converts the normal 1-12 month format to Java's Calendar format of 0-11.
         intCalMonth = (intCalMonth-1);
 
 
         // Check to see if workout is less than 1 min if it is then workout time becomes 1 min
-        // As 1 min is the shortest amount taken by google fit.
+        // As 1 min is the shortest amount taken by Google fit.
         if (calTimeStart==intCalTime & calTimeMinStart==intCalTimeMin)
         {
             intCalTimeMin = intCalTimeMin+1;
 
         }
 
-
         beginTime = Calendar.getInstance();
         beginTime.set(intCalYear, intCalMonth, intCalDay, calTimeStart, calTimeMinStart);
-
         endTime = Calendar.getInstance();
         endTime.set(intCalYear, intCalMonth, intCalDay, intCalTime, intCalTimeMin);
 
 
-
-
-
-
-
-            //Toast toast =  Toast.makeText(this, "Code 2", Toast.LENGTH_SHORT); toast.show();
+        //Toast toast =  Toast.makeText(this, "Code 2", Toast.LENGTH_SHORT); toast.show();
 
         db = new SQLiteDatabaseHandler(this);
 
@@ -272,9 +227,7 @@ public class finishedActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     // The toggle is enabled
-
                     askForPermission();
-
 
                 } else {
                     // The toggle is disabled
@@ -289,10 +242,7 @@ public class finishedActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     // The toggle is enabled
-
                     googleFitEnabled();
-
-
 
                 } else {
                     // The toggle is disabled
@@ -327,9 +277,7 @@ public class finishedActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //is chkIos checked?
                 if (((CheckBox) v).isChecked()) {
-
                     saveCloudFlag = true;
-
 
                 }
 
@@ -348,8 +296,6 @@ public class finishedActivity extends AppCompatActivity {
 
             }
         });
-
-
 
 
     }// End of onCreate.
@@ -374,16 +320,15 @@ public class finishedActivity extends AppCompatActivity {
 
         formattedDate = df.format(c.getTime());
 
-        // Format the Bitmap for saving.
-        //encodeBitmapAndSaveToFirebase(resizedBitmap);
-
-
         jtitle = workoutTitleText + " - " + formattedDate;
 
         //*********SQLite************************
        if (saveDeviceFlag) {
 
-           // create our sqlite helper class
+           // Exception handing in case the journal entry couldn't be added to the device database.
+           try {
+
+               // create our sqlite helper class
            db = new SQLiteDatabaseHandler(this);
            // create new timer
            Journal journal = new Journal(jtitle, totalTimeText, caloriesBurntText,  0, imageEncoded);
@@ -391,7 +336,12 @@ public class finishedActivity extends AppCompatActivity {
            // add them
            db.addJournal(journal);
 
+           }
 
+           catch (Exception e) {
+             StyleableToast.makeText(this, "Error, couldn't save to device.", Toast.LENGTH_LONG, R.style.warningtoast).show();
+            Log.e("APP", "exception", e);
+          }
 
            progress.dismiss();
 
@@ -401,7 +351,6 @@ public class finishedActivity extends AppCompatActivity {
        }
 
         //*********FIREBASE************************
-
 
 
         if (saveCloudFlag) {
@@ -416,10 +365,13 @@ public class finishedActivity extends AppCompatActivity {
 
             if (isConnected) {
 
+                // Exception handing in case the journal entry couldn't be added to the remote database.
+                try {
 
-                mAuth = FirebaseAuth.getInstance();
 
-                FirebaseUser currentUser = mAuth.getCurrentUser();
+                    mAuth = FirebaseAuth.getInstance();
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+
 
                 uid = currentUser.getUid();
                 uname = currentUser.getDisplayName();
@@ -453,6 +405,13 @@ public class finishedActivity extends AppCompatActivity {
                     jnumber.child("pictureURL").setValue(imageEncoded);
                 }
 
+                }
+
+                catch (Exception e) {
+                    StyleableToast.makeText(this, "Error, couldn't save to cloud.", Toast.LENGTH_LONG, R.style.warningtoast).show();
+                    Log.e("APP", "exception", e);
+                }
+
                 progress.dismiss();
 
 
@@ -476,15 +435,8 @@ public class finishedActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
         // cloud
     }// End of saveWorkoutButton method.
-
-
 
     public void cancelButton(View v) {
 
@@ -514,8 +466,6 @@ public class finishedActivity extends AppCompatActivity {
                 .show();
 
     }
-
-
 
 
     private void askForPermission() {
@@ -597,8 +547,6 @@ public class finishedActivity extends AppCompatActivity {
     }
 
 
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -607,15 +555,11 @@ public class finishedActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
 
-
-
-
                     saveToCalendar();
 
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-
 
                 }
                 return;
@@ -647,14 +591,9 @@ public class finishedActivity extends AppCompatActivity {
 
     public void saveToCalendar()
     {
-
-
-
         //This opens the built in calendar to save the workout to it.
 
         Intent calIntent = new Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI);
-
-
 
         calIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime.getTimeInMillis());
 
@@ -665,8 +604,6 @@ public class finishedActivity extends AppCompatActivity {
         calIntent.putExtra(CalendarContract.Events.DESCRIPTION, "You completed your Initiate Interval workout called: "+workoutTitleText);
 
         startActivity(calIntent);
-
-
 
     }
 
@@ -679,9 +616,16 @@ public class finishedActivity extends AppCompatActivity {
     File photoFile;
 
 
+    /**************************************************************************************
+     * Title: Camera Intent and File system
+     * Author: Prudhvi Raj Kumar
+     * Date: January 2018
+     * Availability: https://android.jlelse.eu/androids-new-image-capture-from-a-camera-using-file-provider-dd178519a954
+     *
+     ***************************************************************************************/
+
+
     public void takePicture() {
-
-
 
         //Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         //startActivityForResult(cameraIntent, TAKE_PICTURE);
@@ -694,17 +638,13 @@ public class finishedActivity extends AppCompatActivity {
 
         // wrap File object into a content provider
         // required for API >= 24
-        // See https://guides.codepath.com/android/Sharing-Content-with-Intents#sharing-files-with-api-24-or-higher
         Uri fileProvider = FileProvider.getUriForFile(finishedActivity.this, "uk.ac.lincoln.students.a15595332.initiateintervalfitnesstraining.provider", photoFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider);
 
-        // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
-        // So as long as the result is not null, it's safe to use the intent.
         if (intent.resolveActivity(getPackageManager()) != null) {
             // Start the image capture intent to take photo
             startActivityForResult(intent, TAKE_PICTURE);
         }
-
 
     }
 
@@ -712,8 +652,6 @@ public class finishedActivity extends AppCompatActivity {
     // Returns the File for a photo stored on disk given the fileName
     public File getPhotoFileUri(String fileName) {
         // Get safe storage directory for photos
-        // `getExternalFilesDir` on Context to access package-specific directories.
-        // This way there's no need to request external read/write runtime permissions.
         File mediaStorageDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
 
         // Create the storage directory if it does not exist
@@ -726,10 +664,6 @@ public class finishedActivity extends AppCompatActivity {
 
         return file;
     }
-
-
-
-
 
 
     int GOOGLE_FIT_PERMISSIONS_REQUEST_CODE = 0533;
@@ -790,13 +724,10 @@ public class finishedActivity extends AppCompatActivity {
                 // Load the taken image into a preview
                 thumbnailPhoto.setImageBitmap(takenImage);
 
-
                 // RESIZE BITMAP for storage.
                 File takenPhotoUri = getPhotoFileUri(photoFileName);
                 // Camera photo is now on disk
                 rawTakenImage = BitmapFactory.decodeFile(takenPhotoUri.getPath());
-
-
 
                 // The following uses BitmapScaler from this GitHub repository: https://gist.github.com/nesquena/3885707fd3773c09f1bb
                 resizedBitmap = BitmapScaler.scaleToFitWidth(rawTakenImage, 500);
@@ -821,9 +752,7 @@ public class finishedActivity extends AppCompatActivity {
                     fos.write(bytes.toByteArray());
                     fos.close();
 
-
                 } catch (IOException ex) {
-
 
                     ex.printStackTrace();
 
@@ -831,23 +760,18 @@ public class finishedActivity extends AppCompatActivity {
 
             }
 
-
             else { // Result was a failure
                // Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+
+                Log.i("Camera", "Picture wasn't taken!");
             }
-
-
-
-
-
 
         } // End of result okay
     }// End of method
 
 
-
     private void accessGoogleFit() {
-        Log.d(finishedActivity.this.getLocalClassName(), "authorized");
+        Log.d(finishedActivity.this.getLocalClassName(), "authorised");
 
         if (mGoogleApiClient == null) {
            mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -932,10 +856,6 @@ public class finishedActivity extends AppCompatActivity {
                 .build();
 
 
-
-
-
-
         new InsertIUserHistoryDataGoogleFit().execute("", "", "");
     }
 
@@ -977,213 +897,8 @@ public class finishedActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
     private static final String DEBUG_TAG = "NetworkStatusExample";
-
-
-
-
 
 
 }// End of class.
 
-
- /*
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), TAKE_PICTURE);
-*/
-
-
-//push creates a unique id in database
-// demoRef.push().setValue(jtitle);
-//user.child(uid).setValue(user);
-
-
-
-  /*
-        Calendar cal = Calendar.getInstance();
-        Date now = new Date();
-        //cal.setTime(now);
-        //cal.add(Calendar.MINUTE, -10);
-        */
-
-
-/*
-    private void accessGoogleFit() {
-
-        Toast.makeText(this, "Accessing Google Fit ", Toast.LENGTH_SHORT).show();
-
-        savingGoogleFit();
-
-    }
-
-*/
-
-/*
-    public void savingGoogleFit(){
-
-        // Create a session with metadata about the activity.
-        Session session = new Session.Builder()
-                .setName(workoutTitleText)
-                .setDescription("Initiate Interval Workout")
-                .setIdentifier("UniqueIdentifierHere")
-                .setActivity(FitnessActivities.HIGH_INTENSITY_INTERVAL_TRAINING)
-                .setStartTime(1100, TimeUnit.MILLISECONDS)
-                .setEndTime(1200, TimeUnit.MILLISECONDS)
-                .build();
-
-
-        DataSource caloriesDataSource = new DataSource.Builder()
-                .setAppPackageName(this.getPackageName())
-                .setDataType(DataType.AGGREGATE_CALORIES_EXPENDED)
-                .setName("Total Calories Burned")
-                .setType(DataSource.TYPE_RAW)
-                .build();
-        DataSet caloriesDataSet = DataSet.create(caloriesDataSource);
-        DataPoint caloriesDataPoint = caloriesDataSet.createDataPoint()
-                .setTimeInterval((long) 1100, (long) 1200, TimeUnit.MILLISECONDS);
-        caloriesDataPoint.getValue(Field.FIELD_CALORIES).setFloat((float) caloriesBurntInt);
-        caloriesDataSet.add(caloriesDataPoint);
-
-
-
-        // Build a session insert request
-        SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
-                .setSession(session)
-                .addDataSet(caloriesDataSet)
-                .build();
-
-
-
-        // Then, invoke the Sessions API to insert the session and await the result,
-        // which is possible here because of the AsyncTask. Always include a timeout when
-        // calling await() to avoid hanging that can occur from the service being shutdown
-        // because of low memory or other conditions.
-        Log.i(TAG, "Inserting the session in the History API");
-        return Fitness.getSessionsClient(this, GoogleSignIn.getLastSignedInAccount(this))
-                .insertSession(insertRequest)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // At this point, the session has been inserted and can be read.
-                        Log.i(TAG, "Session insert was successful!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.i(TAG, "There was a problem inserting the session: " +
-                                e.getLocalizedMessage());
-                    }
-                });
-
-
-
-    }
-*/
-
-
- /*
-        Intent calIntent = new Intent(Intent.ACTION_INSERT);
-        calIntent.setType("vnd.android.cursor.item/event");
-
-        calIntent.putExtra(CalendarContract.Events.TITLE, "Initiate Interval Workout");
-
-        calIntent.putExtra(CalendarContract.Events.DESCRIPTION, workoutTitleText);
-
-        GregorianCalendar calDate = new GregorianCalendar(intCalYear, intCalMonth, intCalDay);
-
-        calIntent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, calTime);
-
-        calIntent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, calTime);
-
-        startActivity(calIntent);
-*/
-
-/*
-
-
- Session session = new Session.Builder()
-                            .setName(workoutTitleText)
-                            .setIdentifier(getString(R.string.app_name) + " " + System.currentTimeMillis())
-                            .setDescription("Initiate Interval Workout")
-                            .setStartTime(1100, TimeUnit.MILLISECONDS)
-                            .setEndTime(1200, TimeUnit.MILLISECONDS)
-                            .setActivity(FitnessActivities.HIGH_INTENSITY_INTERVAL_TRAINING)
-                            .build();
-
-                    SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
-                            .setSession(session)
-                           // .addDataSet(speedDataSet)
-                           // .addDataSet(activityDataSet)
-                            .build();
-
-                    PendingResult<Status> pendingResult =
-                            Fitness.SessionsApi.insertSession(mGoogleApiClient, insertRequest);
-
-                    pendingResult.setResultCallback(new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(Status status) {
-                            if( status.isSuccess() ) {
-                                Log.i("Tuts+", "successfully inserted running session");
-                            } else {
-                                Log.i("Tuts+", "Failed to insert running session: " + status.getStatusMessage());
-                            }
-                        }
-                    });
-
-
-
-*/
-
-
-/*
-    public void encodeBitmapAndSaveToFirebase(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-
-    }
-*/
-
-/*
-  public boolean isOnline() {
-
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-
-        boolean isWifiConn = false;
-        boolean isMobileConn = false;
-
-        for (Network network : connMgr.getAllNetworks()) {
-             networkInfo = connMgr.getNetworkInfo(network);
-            if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                isWifiConn |= networkInfo.isConnected();
-            }
-            if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-                isMobileConn |= networkInfo.isConnected();
-            }
-        }
-
-
-        Log.d(DEBUG_TAG, "Wifi connected: " + isWifiConn);
-        Log.d(DEBUG_TAG, "Mobile connected: " + isMobileConn);
-
-
-        Log.d(DEBUG_TAG, "networkInfo: " + networkInfo);
-
-        return (networkInfo != null && networkInfo.isConnected());
-
-
-    }
-
-
- */

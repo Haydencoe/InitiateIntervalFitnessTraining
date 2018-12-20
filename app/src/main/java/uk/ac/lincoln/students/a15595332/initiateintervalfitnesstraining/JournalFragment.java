@@ -56,38 +56,32 @@ import java.util.Map;
  * create an instance of this fragment.
  */
 public class JournalFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-
     private JournalsAdapter mAdapter;
     private RecyclerView mRecyclerView;
+    public Menu menu;
+    private SQLiteDatabaseHandler db;
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase database;
+    DatabaseReference refdb;
+    public JCustomItemClickListener listener;
+
+    public boolean refreshFlag;
 
     public List<Journal> journalList;
 
     private static final String DEBUG_TAG = "NetworkStatus";
 
-    public int p;
+    public int p; // position
 
-    private SQLiteDatabaseHandler db;
 
-    public Menu menu;
-
-    private FirebaseAuth mAuth;
-
-    private FirebaseDatabase database;
-    DatabaseReference refdb;
-
-    public boolean refreshFlag;
-
-    public JCustomItemClickListener listener;
 
     public JournalFragment() {
         // Required empty public constructor
@@ -135,17 +129,11 @@ public class JournalFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
             refreshFlag = false;
 
-           // MainActivity mActivity = (MainActivity) getActivity();
-           // mActivity.mTitle.setText("Journal - Device");
-
-
             journalList = new LinkedList<>();
-            //db = new SQLiteDatabaseHandler(getActivity());
-        loadFromDevice();
 
+            loadFromDevice();
 
         // Setup our RecyclerView
 
@@ -170,31 +158,19 @@ public class JournalFragment extends Fragment {
         // Initialize the Journal adapter.
         mAdapter = new JournalsAdapter(getActivity(), R.layout.journal_row, journalList, listener);
 
-        // Initialize ItemAnimator, LayoutManager and ItemDecorators
-
-
         // For performance, tell OS RecyclerView won't change size
         mRecyclerView.setHasFixedSize(true);
-
 
         // Attach the adapter to RecyclerView
         mRecyclerView.setAdapter(mAdapter);
 
-
         // Sets the view to have one column in a linear fashion.
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
-
 
         // Set the LayoutManager
         mRecyclerView.setLayoutManager(layoutManager);
 
-        // Inflate the layout for this fragment
-        //return inflater.inflate(R.layout.fragment_journal, container, false);
-
-
         return rootView;
-
-
 
     }
 
@@ -244,12 +220,6 @@ public class JournalFragment extends Fragment {
 
                 switch (item.getItemId()) {
 
-                    /*
-                    case R.id.editItem:
-
-
-                        return true;
-                      */
                         case R.id.deleteItem:
                         // do the delete
                             new AlertDialog.Builder(getContext())
@@ -263,7 +233,6 @@ public class JournalFragment extends Fragment {
                                             int id = journalList.get(p).getmJId();
                                             // delete one from the data base.
                                             db.deleteOneJournal(id);
-
 
                                             //firebase.child(id).removeValue();
 
@@ -297,6 +266,14 @@ public class JournalFragment extends Fragment {
         popup.show();
     }// End of showMenu
 
+
+    /**************************************************************************************
+     * Title: Google Firebase
+     * Author: Filip Babić
+     * Date: June 2018
+     * Availability: https://www.raywenderlich.com/5114-firebase-tutorial-for-android-getting-started
+     *
+     ***************************************************************************************/
 
     public void loadFromCloud (){
 
@@ -374,12 +351,7 @@ public class JournalFragment extends Fragment {
                     // Puts the list in most recently added order.
                     Collections.reverse(journalList);
 
-
                     mAdapter.notifyDataSetChanged();
-
-
-                    //refreshFragment();
-
 
                 }
 
@@ -394,10 +366,7 @@ public class JournalFragment extends Fragment {
         }// End of if isConnected.
 
         else {
-
-
             StyleableToast.makeText(getContext(), "No network available, please check your connection or load from device.", Toast.LENGTH_LONG, R.style.warningtoast).show();
-
         }
 
     }
@@ -428,16 +397,13 @@ public class JournalFragment extends Fragment {
 
                 itemsNames[i] = journalList.get(i).toString();
             }
-
         }
 
-        if (journalList == null) {
-
-
+        if (journalList.size() == 0) {
+            StyleableToast.makeText(getContext(), "No journal entries, let's go make some!", Toast.LENGTH_SHORT, R.style.mytoast).show();
         }
 
         Log.i("REFRESH", "List: "+journalList.size());
-
 
         // Puts the list in most recently added order.
         Collections.reverse(journalList);
@@ -446,21 +412,15 @@ public class JournalFragment extends Fragment {
 
             Log.i("REFRESH", "True");
 
-
            mAdapter = new JournalsAdapter(getActivity(), R.layout.journal_row, journalList, listener);
            mRecyclerView.setAdapter(mAdapter);
 
            mAdapter.notifyDataSetChanged();
 
-
-
-
         }
 
     }
 
-
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -500,118 +460,3 @@ public class JournalFragment extends Fragment {
     }
 }
 
-
- /*
-        Journal jadd2 = new Journal("", "", "", 0);
-        Log.i("FIREBASE", "Call Object: " + jadd2);
-
-        journalList.add(jadd2);
-        Log.i("LIST CHECK", "Call List Size: " + journalList.size());
-*/
-
-        /*
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-
-        DatabaseReference userId = database.child("Kf7YpKgSqpaT8i0llG39IuHxOpD3");
-
-        DatabaseReference userName = userId.child("Hayden Coe");
-
-        DatabaseReference userJournal = userName.child("Journal");
-
-        userJournal.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //List j = new ArrayList<>();
-                for (DataSnapshot noteDataSnapshot : dataSnapshot.getChildren()) {
-                    Journal j = noteDataSnapshot.getValue(Journal.class);
-                    //journalList.add(j);
-
-
-                    //Map<String, Object> map = (Map<String, Object>) noteDataSnapshot.getValue();
-                    //String title = (String) map.get("title");
-
-
-                    Journal jadd2 = new Journal("", "100", "100", 0);
-
-                    journalList.add(j);
-
-                }
-                //mAdapter.updateList(notes);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError firebaseError) {
-
-                Log.e("The read failed: " ,firebaseError.getMessage());
-
-            }
-
-
-
-        });
-*/
-
-        /*
-        ValueEventListener queryValueListener = new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                DataSnapshot journalSnapshot = dataSnapshot.child("Journal");
-
-                Iterable<DataSnapshot> journalChildren = journalSnapshot.getChildren();
-
-                for (DataSnapshot journal : journalChildren) {
-
-                    Journal j = journal.getValue(Journal.class);
-
-
-
-                    Log.d("journal:: ", j.getmJCalories() + " " + j.getmJTotalTime() + " " + j.getmJTitle());
-                    journalList.add(j);
-                }
-
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError firebaseError) {
-
-                Log.e("The read failed: " ,firebaseError.getMessage());
-
-            }
-
-        };
-*/
-
-         /*
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference();
-        */
-
-         /*
-        journalList = db.allJournal();
-
-        if (journalList != null) {
-
-            String[] itemsNames = new String[journalList.size()];
-
-            for (int i = 0; i < journalList.size(); i++) {
-
-                itemsNames[i] = journalList.get(i).toString();
-
-            }
-
-        }
-
-        if (journalList == null) {
-
-
-        }
-
-
-
-        // Puts the list in most recently added order.
-        Collections.reverse(journalList);
-*/

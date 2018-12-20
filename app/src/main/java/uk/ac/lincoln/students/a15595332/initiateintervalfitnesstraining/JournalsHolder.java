@@ -24,19 +24,14 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
     private final TextView jTitle;
     private final TextView jTotalTime;
     private final TextView jCalories;
-
     private final TextView jTotalTime_Text;
     private final TextView jCalories_Text;
-
 
     private final ImageView jPicture;
 
     private Journal journal;
-
     private Context context;
-
     private final JCustomItemClickListener mListener;
-
     private final ImageButton menuJButton;
 
 
@@ -71,14 +66,9 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
         //Bind the data to the ViewHolder
         this.journal = journal;
 
-        // this.timerPicture.setImageResource(timers.getmImageDrawable());
-
         this.jTitle.setText(journal.getmJTitle());
         this.jTotalTime.setText(journal.getmJTotalTime());
         this.jCalories.setText(journal.getmJCalories());
-
-       //
-
 
         String imageCheck = journal.getmPictureURL();
 
@@ -86,7 +76,6 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
 
         {
             try {
-
 
                 Bitmap image = decodeFromFirebaseBase64(journal.getmPictureURL());
 
@@ -106,8 +95,6 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
                         .centerCrop()
                         )
 
-                        //.apply(RequestOptions.bitmapTransform(new RoundedCorners(0)))
-
                         //.centerCrop()
                         .into(jPicture);
 
@@ -117,8 +104,6 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
             }
 
         }
-
-
     }
 
     public void onClick(View v) {
@@ -126,10 +111,7 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
 
         // Handle the onClick event for the ViewHolder
         if (this.journal != null) {
-
-
             //Toast.makeText(this.context, "Clicked on " , Toast.LENGTH_SHORT ).show();
-
         }
 
         switch (v.getId()) {
@@ -139,9 +121,7 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
 
             default:
                 break;
-
         }
-
 
     }// End of onClick method.
 
@@ -149,8 +129,5 @@ public class JournalsHolder extends RecyclerView.ViewHolder implements View.OnCl
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
     }
-
-
-
 
 }// end of class

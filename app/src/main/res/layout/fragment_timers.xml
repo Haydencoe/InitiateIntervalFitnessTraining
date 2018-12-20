@@ -8,8 +8,6 @@
     >
 
 
-
-
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nestedScroll"
         android:layout_width="match_parent"
